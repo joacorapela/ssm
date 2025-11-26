@@ -5,7 +5,8 @@ import numpy as np
 def ortogonalizeMeansAndCovs(means, covs, Z):
     U, S, Vh = np.linalg.svd(Z)
     SVh = np.diag(S) @ Vh
-    o_means = np.einsum("ik,kjt->ijt", SVh, means)  # \in ijt
+    o_means = np.einsum("ik,kjt->ijt",
+                        SVh, means-np.mean(means, axis=2, keepdims=True))  # \in ijt
     # aux1 = Vh @ covs_to_plot  # \in ijl
     aux1 = np.einsum("ik,kjt->ijt", SVh, covs)  # \in ijt
     aux2 = SVh.T  # \in jk
