@@ -525,6 +525,141 @@ def torch_lbfgs_optimize_SS_tracking_diagV0(y, B, Qe, Z,
     return answer
 
 
+def torch_lbfgs_optimize_SS_LDS_diagV0(y, B, sqrt_diag_Q0, Z, sqrt_diag_R0,
+                                       m0_0, sqrt_diag_V0_0,
+                                       max_iter=20, lr=1.0,
+                                       tolerance_grad=1e-7,
+                                       tolerance_change=1e-9,
+                                       n_epochs = 100, tol=1e-6,
+                                       line_search_fn="strong_wolfe",
+                                       vars_to_estimate={
+                                           "B": True,
+                                           "sqrt_diag_Q": True,
+                                           "sqrt_diag_R": True,
+                                           "m0": True,
+                                           "sqrt_diag_V0": True}):
+
+    import torch
+    def log_likelihood_fn():
+        V0 = torch.diag(sqrt_diag_V0**2)
+        e1 = torch.tensor([1, 0], dtype=torch.double)
+        e2 = torch.tensor([0, 1], dtype=torch.double)
+        R = (pos_x_R_std**2 * torch.outer(e1, e1) +
+             pos_y_R_std**2 * torch.outer(e2, e2))
+        Q = Qe * sigma_a**2
+        log_like = inference.logLikeLDS_withMissingValues_torch(
+            y=y, B=B, Q=Q, m0=m0, V0=V0, Z=Z, R=R)
+        return log_like
+
+    optim_params = {"max_iter": max_iter, "lr": lr,
+                    "tolerance_grad": tolerance_grad,
+                    "tolerance_change": tolerance_change,
+                    "line_search_fn": line_search_fn}
+    sigma_a = torch.tensor([sigma_a0], dtype=torch.double)
+    pos_x_R_std = torch.tensor([pos_x_R_std0], dtype=torch.double)
+    pos_y_R_std = torch.tensor([pos_y_R_std0], dtype=torch.double)
+    m0 = m0_0
+    sqrt_diag_V0 = sqrt_diag_V0_0
+    x = []
+    if vars_to_estimate["sigma_a"]:
+        x.append(sigma_a)
+    if vars_to_estimate["pos_x_R_std"]:
+        x.append(pos_x_R_std)
+    if vars_to_estimate["pos_y_R_std"]:
+        x.append(pos_y_R_std)
+    if vars_to_estimate["m0"]:
+        x.append(m0)
+    if vars_to_estimate["sqrt_diag_V0"]:
+        x.append(sqrt_diag_V0)
+    if len(x) == 0:
+        raise RuntimeError("No variable to estimate. Please set one element "
+                           "of vars_to_estimate to True")
+    optimizer = torch.optim.LBFGS(x, **optim_params)
+    for i in range(len(x)):
+        x[i].requires_grad = True
+
+    def closure():
+        optimizer.zero_grad()
+        curEval = -log_likelihood_fn()
+        curEval.backward()
+        print_string = f"ll={-curEval}"
+        if vars_to_estimate["sigma_a"]:
+            print_string += f", sigma_a={sigma_a.item()}"
+        if vars_to_estimate["pos_x_R_std"]:
+            print_string += f", pos_x_R_std={pos_x_R_std.item()}"
+        if vars_to_estimate["pos_y_R_std"]:
+            print_string += f", pos_y_R_std={pos_y_R_std.item()}"
+        if vars_to_estimate["m0"]:
+            print_string += f", m0={m0}"
+        if vars_to_estimate["sqrt_diag_V0"]:
+            print_string += f", sqrt_diag_V0={sqrt_diag_V0}"
+        print(print_string)
+        return curEval
+
+    termination_info = "success: reached maximum number of iterations"
+    log_like = []
+    elapsed_time = []
+    start_time = time.time()
+    curEval = -log_likelihood_fn()
+    log_like.append(-curEval.item())
+    elapsed_time.append(time.time() - start_time)
+    print("--------------------------------------------------------------------------------")
+    print(f"startup")
+    print(f"likelihood: {log_like[-1]}")
+    for epoch in range(n_epochs):
+        curEval = optimizer.step(closure)
+        curEval = -log_likelihood_fn()
+        log_like.append(-curEval.item())
+        elapsed_time.append(time.time() - start_time)
+        print("--------------------------------------------------------------------------------")
+        print(f"epoch: {epoch}")
+        print(f"likelihood: {log_like[-1]}")
+        if vars_to_estimate["sigma_a"]:
+            print("sigma_a: ")
+            print(sigma_a)
+        if vars_to_estimate["pos_x_R_std"]:
+            print("pos_x_R_std: ")
+            print(pos_x_R_std)
+        if vars_to_estimate["pos_y_R_std"]:
+            print("pos_y_R_std: ")
+            print(pos_y_R_std)
+        if vars_to_estimate["m0"]:
+            print("m0: ")
+            print(m0)
+        if vars_to_estimate["sqrt_diag_V0"]:
+            print("sqrt_diag_V0: ")
+            print(sqrt_diag_V0)
+        if epoch > 0 and log_like[-1] - log_like[-2] < tol:
+            termination_info = "success: converged"
+            break
+    for i in range(len(x)):
+        x[i].requires_grad = False
+
+    estimates = {}
+    initial_conditions = {}
+    if vars_to_estimate["sigma_a"]:
+        initial_conditions["sigma_a"] = sigma_a0
+        estimates["sigma_a"] = sigma_a
+    if vars_to_estimate["pos_x_R_std"]:
+        initial_conditions["pos_x_R_std"] = pos_x_R_std0
+        estimates["pos_x_R_std"] = pos_x_R_std
+    if vars_to_estimate["pos_y_R_std"]:
+        initial_conditions["pos_y_R_std"] = pos_y_R_std0
+        estimates["pos_y_R_std"] = pos_y_R_std
+    if vars_to_estimate["m0"]:
+        initial_conditions["m0"] = m0_0
+        estimates["m0"] = m0
+    if vars_to_estimate["sqrt_diag_V0"]:
+        initial_conditions["sqrt_diag_V0"] = sqrt_diag_V0_0
+        estimates["sqrt_diag_V0"] = sqrt_diag_V0
+    answer = {"initial_conditions": initial_conditions,
+              "estimates": estimates,
+              "log_like": log_like,
+              "elapsed_time": elapsed_time,
+              "termination_info": termination_info}
+    return answer
+
+
 def torch_adam_optimize_SS_tracking_diagV0(y, B, sigma_a0, Qe, Z,
                                            sqrt_diag_R_0, m0_0, sqrt_diag_V0_0,
                                            max_iter=50, lr=1e-3, eps=1e-8,
@@ -717,7 +852,10 @@ def em_SS_tracking(y, B, sigma_a0, Qe, Z, R_0, m0_0, V0_0,
 
 def em_SS_LDS(y, B0, Q0, Z0, R0, m0_0, V0_0, max_iter=50, tol=1e-4,
               vars_to_estimate=dict(m0=True, V0=True, B=True, Q=True, Z=True,
-                                    R=True)):
+                                    diag_R=True, R=False)):
+    if vars_to_estimate["diag_R"] and vars_to_estimate["R"]:
+        raise ValueError('vars_to_estimate["diag_R"] and vars_to_estimate["R"]'
+                         ' cannot be both True')
     B  = B0
     Q  = Q0
     Z  = Z0
@@ -735,8 +873,9 @@ def em_SS_LDS(y, B0, Q0, Z0, R0, m0_0, V0_0, max_iter=50, tol=1e-4,
                                                          Z=Z, R=R)
         print("LogLike[{:04d}]={:f}".format(iter, kf["logLike"].item()))
         log_like[iter] = kf["logLike"]
-        assert(kf["logLike"] > prev_log_like)
-        if (kf["logLike"] - prev_log_like) < tol:
+        if kf["logLike"] < prev_log_like:
+            warnings.warn(f'Log likelihood decreased by {prev_log_like - kf["logLike"]}')
+        elif (kf["logLike"] - prev_log_like) < tol:
             break
         prev_log_like = kf["logLike"]
         ks = inference.smoothLDS_SS(B=B, xnn=kf["xnn"], Pnn=kf["Pnn"],
@@ -770,6 +909,14 @@ def em_SS_LDS(y, B0, Q0, Z0, R0, m0_0, V0_0, max_iter=50, tol=1e-4,
                 R = R + np.outer(u, u) + Z @ ks["PnN"][:, :, i] @ Z.T
             R = R/N
 
+        if vars_to_estimate["diag_R"]:
+            diag_R = (y[:, 0]**2 - 2 * y[:, 0] * (Z @ ks["xnN"][:, :, 0]).squeeze() + np.diag(Z @ ks["PnN"][:, :, 0] @ Z.T))
+            for i in range(1, N):
+                Si = ks["PnN"][:, :, i] + np.outer(ks["xnN"][:, :, i], ks["xnN"][:, :, i])
+                diag_R = diag_R + (y[:, i]**2 - 2 * y[:, i] * (Z @ ks["xnN"][:, :, i]).squeeze() + np.diag(Z @ Si @ Z.T))
+            diag_R = diag_R/N
+            R = np.diag(diag_R)
+
         if vars_to_estimate["m0"]:
             m0 = ks["x0N"].squeeze()
 
@@ -779,6 +926,108 @@ def em_SS_LDS(y, B0, Q0, Z0, R0, m0_0, V0_0, max_iter=50, tol=1e-4,
     answer = dict(B=B, Q=Q, Z=Z, R=R, m0=m0, V0=V0, log_like=log_like[:(iter+1)],
                   niter=iter)
     return answer
+
+def em_with_offsets_SS_LDS(y, u0, B0, Q0, a0, Z0, R0, m0_0, V0_0,
+                           max_iter=50, tol=1e-4,
+                           vars_to_estimate=dict(m0=True, V0=True, u=True,
+                                                 B=True, Q=True, a=True,
+                                                 Z=True, R=True),
+                           constraint_diag_R=True):
+    u  = u0
+    B  = B0
+    Q  = Q0
+    a  = a0
+    Z  = Z0
+    R  = R0
+    m0 = m0_0
+    V0 = V0_0
+
+    M = B0.shape[0]
+    N = y.shape[1]
+    log_like = np.empty(max_iter)
+    prev_log_like = -np.inf
+    for iter in range(max_iter):
+        kf = inference.filterLDS_SS_withMissingValues_np(y=y, u=u, B=B,
+                                                         Q=Q, m0=m0, V0=V0,
+                                                         a=a, Z=Z, R=R)
+        print("LogLike[{:04d}]={:f}".format(iter, kf["logLike"].item()))
+        log_like[iter] = kf["logLike"]
+        if kf["logLike"] < prev_log_like:
+            warnings.warn(f'Log likelihood decreased by {prev_log_like - kf["logLike"]}')
+        elif (kf["logLike"] - prev_log_like) < tol:
+            break
+        prev_log_like = kf["logLike"]
+        ks = inference.smoothLDS_SS(B=B, xnn=kf["xnn"], Pnn=kf["Pnn"],
+                                    xnn1=kf["xnn1"], Pnn1=kf["Pnn1"],
+                                    m0=m0, V0=V0)
+
+        Sxx11, Sxx10, Sxx00, Tx1, Tx0, Ty1, Tyx11, Tyy11 =  \
+            getSummaryStatsForEM(Z=Z, B=B, KN=kf["KN"], Pnn=kf["Pnn"],
+                                 xnN=ks["xnN"], PnN=ks["PnN"], x0N=ks["x0N"],
+                                 V0N=ks["V0N"], Jn=ks["Jn"], J0=ks["J0"], y=y)
+        if vars_to_estimate["B"]:
+            aux1 = Sxx10 - np.outer(Tx1, Tx0) / N
+            aux2 = Sxx00 - np.outer(Tx0, Tx0) / N
+            B = np.linalg.solve(aux2.T, aux1.T).T
+
+        if vars_to_estimate["u"]:
+            u = (Tx1 - B @ Tx0) / N
+
+        if vars_to_estimate["Z"]:
+            aux1 = Tyx11 - np.outer(Ty1, Tx1) / N
+            aux2 = Sxx11 - np.outer(Tx1, Tx1) / N
+            Z = np.linalg.solve(aux2.T, aux1.T).T
+
+        if vars_to_estimate["a"]:
+            a = (Ty1 - Z @ Tx1) / N
+
+        if vars_to_estimate["Q"]:
+            Q = (Sxx11 - np.outer(Tx1, u) - np.outer(u, Tx1) +
+                 N * np.outer(u, u) - B @ Sxx10.T - Sxx10 @ B.T +
+                 B @ Sxx00 @ B.T + B @ np.outer(Tx0, u) +
+                 np.outer(u, Tx0) @ B.T) / N
+            Q = (Q.T + Q)/2
+
+        if vars_to_estimate["R"]:
+            R = (Tyy11 - np.outer(Ty1, a) - np.outer(a, Ty1) + N * np.outer(a, a) - Z @ Tyx11.T - Tyx11 @ Z.T + Z @ np.outer(Tx1, a) + Z @ Sxx11 @ Z.T + np.outer(a, Tx1) @ Z.T) / N
+            R = (R.T + R)/2
+            if constraint_diag_R:
+                R = diag(diag(R))
+
+        if vars_to_estimate["m0"]:
+            m0 = ks["x0N"].squeeze()
+
+        if vars_to_estimate["V0"]:
+            V0 = ks["V0N"]
+            V0 = (V0.T + V0)/2
+
+    answer = dict(u=u, B=B, Q=Q, a=a, Z=Z, R=R, m0=m0, V0=V0, log_like=log_like[:(iter+1)],
+                  niter=iter)
+    return answer
+
+
+def getSummaryStatsForEM(Z, B, KN, Pnn, xnN, PnN, x0N, V0N, Jn, J0, y):
+    # We want to first estimate Z and then R, because R depends on Z
+    Pnn1N = lag1CovSmootherLDS_SS(Z=Z, KN=KN, B=B, Pnn=Pnn, Jn=Jn, J0=J0)
+    Sxx11 = np.outer(xnN[:,:,0], xnN[:,:,0]) + PnN[:,:,0]
+    Sxx10 = np.outer(xnN[:,:,0], x0N) + Pnn1N[:,:,0]
+    Sxx00 = np.outer(x0N, x0N) + V0N
+    Tx1 = xnN[:,0,0].copy()
+    Tx0 = x0N.copy().squeeze()
+    Ty1 = y[:,0].copy()
+    Tyx11 = np.outer(y[:,0], xnN[:,0,0])
+    Tyy11 = np.outer(y[:,0], y[:,0])
+    N = xnN.shape[2]
+    for i in range(1, N):
+        Sxx11 += np.outer(xnN[:, 0, i], xnN[:, 0, i]) + PnN[:, :, i]
+        Sxx10 += np.outer(xnN[:, 0, i], xnN[:, 0, i-1]) + Pnn1N[:, :, i]
+        Sxx00 += np.outer(xnN[:, 0, i-1], xnN[:, 0, i-1]) + PnN[:, :, i-1]
+        Tx1   += xnN[:,0,i]
+        Tx0   += xnN[:,0,i-1]
+        Ty1   += y[:,i]
+        Tyx11 += np.outer(y[:,i], xnN[:,0,i])
+        Tyy11 += np.outer(y[:,i], y[:,i])
+    return Sxx11, Sxx10, Sxx00, Tx1, Tx0, Ty1, Tyx11, Tyy11
 
 def posteriorCorrelationMatrices(Z, B, KN, Pnn, xnN, PnN, x0N, V0N, Jn, J0):
     # We want to first estimate Z and then R, because R depends on Z
