@@ -4,11 +4,19 @@ import plotly.graph_objects as go
 import plotly.express as px
 import webcolors
 
+import ssm.neural_latents.utils
 
-def plot_latents(means, covs, bin_centers, trials_df, events_names,
-                 events_linetypes, events_colors,
-                 legend_pattern="filtering_{:d}", cb_alpha=0.3, colors=[],
+
+def plot_latents(means, covs, bins_centers, Z=None,
+                 orthogonalize=False, legend_pattern="latent {:d}",
+                 cb_alpha=0.3, colors=[],
                  xlabel="Time (sec)", ylabel="Latent Value"):
+    if orthogonalize:
+        if Z is None:
+            raise ValueError("If orthogonalize=True then Z should be "
+                             "specified as a parameter")
+        means, covs = ssm.neural_latents.utils.ortogonalizeMeansAndCovs(
+            means, covs, Z)
     if len(colors) == 0:
         colors = px.colors.qualitative.Plotly
     num_colors = len(colors)
@@ -24,7 +32,7 @@ def plot_latents(means, covs, bin_centers, trials_df, events_names,
         filter_ci_lower = filter_means - 1.96*filter_stds
 
         trace = go.Scatter(
-            x=bin_centers, y=filter_means,
+            x=bins_centers, y=filter_means,
             mode="lines+markers",
             marker={"color": color_pattern.format(1.0)},
             name=legend_pattern.format(i),
@@ -32,7 +40,7 @@ def plot_latents(means, covs, bin_centers, trials_df, events_names,
             legendgroup=legend_pattern.format(i),
         )
         trace_cb = go.Scatter(
-            x=np.concatenate([bin_centers, bin_centers[::-1]]),
+            x=np.concatenate([bins_centers, bins_centers[::-1]]),
             y=np.concatenate([filter_ci_upper, filter_ci_lower[::-1]]),
             fill="toself",
             fillcolor=color_pattern.format(cb_alpha),
@@ -43,21 +51,6 @@ def plot_latents(means, covs, bin_centers, trials_df, events_names,
         fig.add_trace(trace)
         fig.add_trace(trace_cb)
 
-    add_events_vlines(fig=fig, trials_df=trials_df, events_names=events_names,
-                      events_linetypes=events_linetypes,
-                      events_colors=events_colors)
-
     fig.update_xaxes(title=xlabel)
     fig.update_yaxes(title=ylabel)
     return fig
-
-
-def add_events_vlines(fig, trials_df, events_names,
-                      events_linetypes, events_colors):
-    n_trials = trials_df.shape[0]
-    for r in range(n_trials):
-        for e, event_name in enumerate(events_names):
-            fig.add_vline(x=trials_df.iloc[r][event_name],
-                          line_dash=events_linetypes[e],
-                          line_color=events_colors[e])
-
