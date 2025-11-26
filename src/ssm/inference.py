@@ -762,12 +762,15 @@ def logLikeEKF_withMissingValues_torch(y, B, Bdot, Q, m0, V0, Z, Zdot, R,
     return logLike
 
 
-def filterLDS_SS_withMissingValues_np(y, B, Q, m0, V0, Z, R):
+def filterLDS_SS_withMissingValues_np(y, u, B, Q, m0, V0, a, Z, R):
     """ Kalman filter implementation of the algorithm described in Shumway and
     Stoffer 2006.
 
     :param: y: time series to be smoothed
     :type: y: numpy array (NxT)
+
+    :param: u: state offset
+    :type: u: numpy array (Mx1)
 
     :param: B: state transition matrix
     :type: B: numpy matrix (MxM)
@@ -781,13 +784,16 @@ def filterLDS_SS_withMissingValues_np(y, B, Q, m0, V0, Z, R):
     :param: V0: initial state covariance
     :type: V0: numpy matrix (MxM)
 
+    :param: a: observations offset
+    :type: a: numpy array (Nx1)
+
     :param: Z: state to observation matrix
     :type: Z: numpy matrix (NxM)
 
     :param: R: observations covariance matrix
     :type: R: numpy matrix (NxN)
 
-    :return:  {xnn1, Pnn1, xnn, Pnn, innov, K, Sn, logLike}: xnn1 and Pnn1 (predicted means, MxT, and covariances, MxMxT), xnn and Pnn (filtered means, MxT, and covariances, MxMxT), innov (innovations, NxT), K (Kalman gain matrices, MxNxT), Sn (innovations covariance matrices, NxNxT), logLike (data loglikelihood, float).
+    :return:  {xnn1, Pnn1, xnn, Pnn, innov, K, Sn, logLike}: xnn1 and Pnn1 (predicted means, Mx1xT, and covariances, MxMxT), xnn and Pnn (filtered means, Mx1xT, and covariances, MxMxT), innov (innovations, Nx1xT), K (Kalman gain matrices, MxNxT), Sn (innovations covariance matrices, NxNxT), logLike (data loglikelihood, float).
     :rtype: dictionary
 
     """
@@ -809,13 +815,14 @@ def filterLDS_SS_withMissingValues_np(y, B, Q, m0, V0, Z, R):
     Sn = np.empty(shape=[P, P, N])
 
     # k==0
-    xnn1[:, 0, 0] = B @ m0
+    xnn1[:, 0, 0] = u + B @ m0
     Pnn1[:, :, 0] = B @ V0 @ B.T + Q
     Stmp = Z @ Pnn1[:, :, 0] @ Z.T + R
     Sn[:, :, 0] = (Stmp + Stmp.T) / 2
     Sinv = np.linalg.inv(Sn[:, :, 0])
     K = Pnn1[:, :, 0] @ Z.T @ Sinv
-    innov[:, 0, 0] = y[:, 0] - (Z @  xnn1[:, :, 0]).squeeze()
+    pred_obs = a + (Z @  xnn1[:, :, 0]).squeeze()
+    innov[:, 0, 0] = y[:, 0] - pred_obs
     xnn[:, :, 0] = xnn1[:, :, 0] + K @ innov[:, :, 0]
     Pnn[:, :, 0] = Pnn1[:, :, 0] - K @ Z @ Pnn1[:, :, 0]
     logLike = -N*P*np.log(2*np.pi) - np.linalg.slogdet(Sn[:, :, 0])[1] - \
@@ -823,7 +830,7 @@ def filterLDS_SS_withMissingValues_np(y, B, Q, m0, V0, Z, R):
 
     # k>1
     for k in range(1, N):
-        xnn1[:, :, k] = B @ xnn[:, :, k-1]
+        xnn1[:, 0, k] = u + (B @ xnn[:, :, k-1]).squeeze()
         Pnn1[:, :, k] = B @ Pnn[:, :, k-1] @ B.T + Q
         if(np.any(np.isnan(y[:, k]))):
             xnn[:, :, k] = xnn1[:, :, k]
@@ -833,7 +840,8 @@ def filterLDS_SS_withMissingValues_np(y, B, Q, m0, V0, Z, R):
             Sn[:, :, k] = (Stmp + Stmp.T)/2
             Sinv = np.linalg.inv(Sn[:, :, k])
             K = Pnn1[:, :, k] @ Z.T @ Sinv
-            innov[:, 0, k] = y[:, k] - (Z @ xnn1[:, :, k]).squeeze()
+            pred_obs = a + (Z @  xnn1[:, :, k]).squeeze()
+            innov[:, 0, k] = y[:, k] - pred_obs
             xnn[:, :, k] = xnn1[:, :, k] + K @ innov[:, :, k]
             Pnn[:, :, k] = Pnn1[:, :, k] - K @ Z @ Pnn1[:, :, k]
         logLike = logLike-np.linalg.slogdet(Sn[:, :, k])[1] -\
@@ -851,13 +859,13 @@ def smoothLDS_SS(B, xnn, Pnn, xnn1, Pnn1, m0, V0):
     :type: B: numpy matrix (MxM)
 
     :param: xnn: filtered means (from Kalman filter)
-    :type: xnn: numpy array (MxT)
+    :type: xnn: numpy array (Mx1xT)
 
     :param: Pnn: filtered covariances (from Kalman filter)
     :type: Pnn: numpy array (MxMXT)
 
     :param: xnn1: predicted means (from Kalman filter)
-    :type: xnn1: numpy array (MxT)
+    :type: xnn1: numpy array (Mx1xT)
 
     :param: Pnn1: predicted covariances (from Kalman filter)
     :type: Pnn1: numpy array (MxMXT)
@@ -868,7 +876,7 @@ def smoothLDS_SS(B, xnn, Pnn, xnn1, Pnn1, m0, V0):
     :param: V0: initial state covariance
     :type: V0: numpy matrix (MxM)
 
-    :return:  {xnN, PnN, Jn, x0N, V0N, J0}: xnn1 and Pnn1 (smoothed means, MxT, and covariances, MxMxT), Jn (smoothing gain matrix, MxMxT), x0N and V0N (smoothed initial state mean, M, and covariance, MxM), J0 (initial smoothing gain matrix, MxN).
+    :return:  {xnN, PnN, Jn, x0N, V0N, J0}: xnn1 and Pnn1 (smoothed means, Mx1xT, and covariances, MxMxT), Jn (smoothing gain matrix, MxMxT), x0N and V0N (smoothed initial state mean, M, and covariance, MxM), J0 (initial smoothing gain matrix, MxN).
 
     """
     if m0.ndim != 1:
