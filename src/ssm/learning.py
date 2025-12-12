@@ -6,12 +6,12 @@ import scipy.optimize
 import warnings
 
 from . import inference
-from .tracking import utils
+from .kinematics import utils
 
 iteration = 0
 
 
-def scipy_optimize_SS_tracking_fullV0(y, B, sigma_a0, Qe, Z, diag_R_0,
+def scipy_optimize_SS_kinematics_fullV0(y, B, sigma_a0, Qe, Z, diag_R_0,
                                       m0_0, V0_0, max_iter, disp=True):
     iL_V0 = np.tril_indices(V0_0.shape[0])
 
@@ -216,7 +216,7 @@ def torch_lbfgs_optimize_kinematicsHO_logLikeEKF_diagV0(
         print(print_string)
         return curEval
 
-    termination_info = "success: reached maximum number of iterations"
+    termination_info = "warning: reached maximum number of iterations"
     log_like = []
     elapsed_time = []
     start_time = time.time()
@@ -304,7 +304,7 @@ def torch_lbfgs_optimize_kinematicsHO_logLikeEKF_diagV0(
     return answer
 
 
-def scipy_optimize_SS_tracking_diagV0(y, B, sigma_ax0, sigma_ay0, Qe, Z,
+def scipy_optimize_SS_kinematics_diagV0(y, B, sigma_ax0, sigma_ay0, Qe, Z,
                                       sqrt_diag_R_0, m0_0, sqrt_diag_V0_0,
                                       max_iter=50, disp=True):
 
@@ -388,7 +388,7 @@ def scipy_optimize_SS_tracking_diagV0(y, B, sigma_ax0, sigma_ay0, Qe, Z,
     return answer
 
 
-def torch_lbfgs_optimize_SS_tracking_diagV0(y, B, Qe, Z,
+def torch_lbfgs_optimize_SS_kinematics_diagV0(y, B, Qe, Z,
                                             sigma_a0, pos_x_R_std0,
                                             pos_y_R_std0,
                                             m0_0, sqrt_diag_V0_0,
@@ -461,7 +461,7 @@ def torch_lbfgs_optimize_SS_tracking_diagV0(y, B, Qe, Z,
         print(print_string)
         return curEval
 
-    termination_info = "success: reached maximum number of iterations"
+    termination_info = "warning: reached maximum number of iterations"
     log_like = []
     elapsed_time = []
     start_time = time.time()
@@ -525,142 +525,7 @@ def torch_lbfgs_optimize_SS_tracking_diagV0(y, B, Qe, Z,
     return answer
 
 
-def torch_lbfgs_optimize_SS_LDS_diagV0(y, B, sqrt_diag_Q0, Z, sqrt_diag_R0,
-                                       m0_0, sqrt_diag_V0_0,
-                                       max_iter=20, lr=1.0,
-                                       tolerance_grad=1e-7,
-                                       tolerance_change=1e-9,
-                                       n_epochs = 100, tol=1e-6,
-                                       line_search_fn="strong_wolfe",
-                                       vars_to_estimate={
-                                           "B": True,
-                                           "sqrt_diag_Q": True,
-                                           "sqrt_diag_R": True,
-                                           "m0": True,
-                                           "sqrt_diag_V0": True}):
-
-    import torch
-    def log_likelihood_fn():
-        V0 = torch.diag(sqrt_diag_V0**2)
-        e1 = torch.tensor([1, 0], dtype=torch.double)
-        e2 = torch.tensor([0, 1], dtype=torch.double)
-        R = (pos_x_R_std**2 * torch.outer(e1, e1) +
-             pos_y_R_std**2 * torch.outer(e2, e2))
-        Q = Qe * sigma_a**2
-        log_like = inference.logLikeLDS_withMissingValues_torch(
-            y=y, B=B, Q=Q, m0=m0, V0=V0, Z=Z, R=R)
-        return log_like
-
-    optim_params = {"max_iter": max_iter, "lr": lr,
-                    "tolerance_grad": tolerance_grad,
-                    "tolerance_change": tolerance_change,
-                    "line_search_fn": line_search_fn}
-    sigma_a = torch.tensor([sigma_a0], dtype=torch.double)
-    pos_x_R_std = torch.tensor([pos_x_R_std0], dtype=torch.double)
-    pos_y_R_std = torch.tensor([pos_y_R_std0], dtype=torch.double)
-    m0 = m0_0
-    sqrt_diag_V0 = sqrt_diag_V0_0
-    x = []
-    if vars_to_estimate["sigma_a"]:
-        x.append(sigma_a)
-    if vars_to_estimate["pos_x_R_std"]:
-        x.append(pos_x_R_std)
-    if vars_to_estimate["pos_y_R_std"]:
-        x.append(pos_y_R_std)
-    if vars_to_estimate["m0"]:
-        x.append(m0)
-    if vars_to_estimate["sqrt_diag_V0"]:
-        x.append(sqrt_diag_V0)
-    if len(x) == 0:
-        raise RuntimeError("No variable to estimate. Please set one element "
-                           "of vars_to_estimate to True")
-    optimizer = torch.optim.LBFGS(x, **optim_params)
-    for i in range(len(x)):
-        x[i].requires_grad = True
-
-    def closure():
-        optimizer.zero_grad()
-        curEval = -log_likelihood_fn()
-        curEval.backward()
-        print_string = f"ll={-curEval}"
-        if vars_to_estimate["sigma_a"]:
-            print_string += f", sigma_a={sigma_a.item()}"
-        if vars_to_estimate["pos_x_R_std"]:
-            print_string += f", pos_x_R_std={pos_x_R_std.item()}"
-        if vars_to_estimate["pos_y_R_std"]:
-            print_string += f", pos_y_R_std={pos_y_R_std.item()}"
-        if vars_to_estimate["m0"]:
-            print_string += f", m0={m0}"
-        if vars_to_estimate["sqrt_diag_V0"]:
-            print_string += f", sqrt_diag_V0={sqrt_diag_V0}"
-        print(print_string)
-        return curEval
-
-    termination_info = "success: reached maximum number of iterations"
-    log_like = []
-    elapsed_time = []
-    start_time = time.time()
-    curEval = -log_likelihood_fn()
-    log_like.append(-curEval.item())
-    elapsed_time.append(time.time() - start_time)
-    print("--------------------------------------------------------------------------------")
-    print(f"startup")
-    print(f"likelihood: {log_like[-1]}")
-    for epoch in range(n_epochs):
-        curEval = optimizer.step(closure)
-        curEval = -log_likelihood_fn()
-        log_like.append(-curEval.item())
-        elapsed_time.append(time.time() - start_time)
-        print("--------------------------------------------------------------------------------")
-        print(f"epoch: {epoch}")
-        print(f"likelihood: {log_like[-1]}")
-        if vars_to_estimate["sigma_a"]:
-            print("sigma_a: ")
-            print(sigma_a)
-        if vars_to_estimate["pos_x_R_std"]:
-            print("pos_x_R_std: ")
-            print(pos_x_R_std)
-        if vars_to_estimate["pos_y_R_std"]:
-            print("pos_y_R_std: ")
-            print(pos_y_R_std)
-        if vars_to_estimate["m0"]:
-            print("m0: ")
-            print(m0)
-        if vars_to_estimate["sqrt_diag_V0"]:
-            print("sqrt_diag_V0: ")
-            print(sqrt_diag_V0)
-        if epoch > 0 and log_like[-1] - log_like[-2] < tol:
-            termination_info = "success: converged"
-            break
-    for i in range(len(x)):
-        x[i].requires_grad = False
-
-    estimates = {}
-    initial_conditions = {}
-    if vars_to_estimate["sigma_a"]:
-        initial_conditions["sigma_a"] = sigma_a0
-        estimates["sigma_a"] = sigma_a
-    if vars_to_estimate["pos_x_R_std"]:
-        initial_conditions["pos_x_R_std"] = pos_x_R_std0
-        estimates["pos_x_R_std"] = pos_x_R_std
-    if vars_to_estimate["pos_y_R_std"]:
-        initial_conditions["pos_y_R_std"] = pos_y_R_std0
-        estimates["pos_y_R_std"] = pos_y_R_std
-    if vars_to_estimate["m0"]:
-        initial_conditions["m0"] = m0_0
-        estimates["m0"] = m0
-    if vars_to_estimate["sqrt_diag_V0"]:
-        initial_conditions["sqrt_diag_V0"] = sqrt_diag_V0_0
-        estimates["sqrt_diag_V0"] = sqrt_diag_V0
-    answer = {"initial_conditions": initial_conditions,
-              "estimates": estimates,
-              "log_like": log_like,
-              "elapsed_time": elapsed_time,
-              "termination_info": termination_info}
-    return answer
-
-
-def torch_adam_optimize_SS_tracking_diagV0(y, B, sigma_a0, Qe, Z,
+def torch_adam_optimize_SS_kinematics_diagV0(y, B, sigma_a0, Qe, Z,
                                            sqrt_diag_R_0, m0_0, sqrt_diag_V0_0,
                                            max_iter=50, lr=1e-3, eps=1e-8,
                                            vars_to_estimate={
@@ -746,7 +611,7 @@ def torch_adam_optimize_SS_tracking_diagV0(y, B, sigma_a0, Qe, Z,
     return answer
 
 
-def em_SS_tracking(y, B, sigma_a0, Qe, Z, R_0, m0_0, V0_0,
+def em_SS_kinematics(y, B, sigma_a0, Qe, Z, R_0, m0_0, V0_0,
                    vars_to_estimate={"sigma_a": True, "R": True,
                                      "m0": True, "V0": True},
                    max_iter=50, tolerance_change=1e-9):
@@ -795,7 +660,7 @@ def em_SS_tracking(y, B, sigma_a0, Qe, Z, R_0, m0_0, V0_0,
             # end backtrack
             break
         elif iter > 0 and log_like[-1] - log_like[-2] < tolerance_change:
-            termination_info = "converged"
+            termination_info = "success: converged"
             break
         elapsed_time.append(time.time() - start_time)
         ks = inference.smoothLDS_SS(B=B, xnn=kf["xnn"], Pnn=kf["Pnn"],
@@ -850,6 +715,7 @@ def em_SS_tracking(y, B, sigma_a0, Qe, Z, R_0, m0_0, V0_0,
     return optim_res
 
 
+'''
 def em_SS_LDS(y, B0, Q0, Z0, R0, m0_0, V0_0, max_iter=50, tol=1e-4,
               vars_to_estimate=dict(m0=True, V0=True, B=True, Q=True, Z=True,
                                     diag_R=True, R=False)):
@@ -926,13 +792,12 @@ def em_SS_LDS(y, B0, Q0, Z0, R0, m0_0, V0_0, max_iter=50, tol=1e-4,
     answer = dict(B=B, Q=Q, Z=Z, R=R, m0=m0, V0=V0, log_like=log_like[:(iter+1)],
                   niter=iter)
     return answer
+'''
 
-def em_with_offsets_SS_LDS(y, u0, B0, Q0, a0, Z0, R0, m0_0, V0_0,
-                           max_iter=50, tol=1e-4,
-                           vars_to_estimate=dict(m0=True, V0=True, u=True,
-                                                 B=True, Q=True, a=True,
-                                                 Z=True, R=True),
-                           constraint_diag_R=True):
+def em_SS_LDS(y, u0, B0, Q0, a0, Z0, R0, m0_0, V0_0, max_iter=50, tol=1e-4,
+              vars_to_estimate=dict(m0=True, V0=True, u=True, B=True, Q=True,
+                                    a=True, Z=True, R=True),
+              constraint_diag_R=True):
     u  = u0
     B  = B0
     Q  = Q0
@@ -944,14 +809,18 @@ def em_with_offsets_SS_LDS(y, u0, B0, Q0, a0, Z0, R0, m0_0, V0_0,
 
     M = B0.shape[0]
     N = y.shape[1]
-    log_like = np.empty(max_iter)
+    log_like = np.empty(max_iter, dtype=float)
+    elapsed_time = np.empty(max_iter, dtype=float)
     prev_log_like = -np.inf
+    start_time = time.time()
     for iter in range(max_iter):
+        breakpoint()
         kf = inference.filterLDS_SS_withMissingValues_np(y=y, u=u, B=B,
                                                          Q=Q, m0=m0, V0=V0,
                                                          a=a, Z=Z, R=R)
         print("LogLike[{:04d}]={:f}".format(iter, kf["logLike"].item()))
         log_like[iter] = kf["logLike"]
+        elapsed_time[iter] = time.time() - start_time
         if kf["logLike"] < prev_log_like:
             warnings.warn(f'Log likelihood decreased by {prev_log_like - kf["logLike"]}')
         elif (kf["logLike"] - prev_log_like) < tol:
@@ -992,7 +861,7 @@ def em_with_offsets_SS_LDS(y, u0, B0, Q0, a0, Z0, R0, m0_0, V0_0,
             R = (Tyy11 - np.outer(Ty1, a) - np.outer(a, Ty1) + N * np.outer(a, a) - Z @ Tyx11.T - Tyx11 @ Z.T + Z @ np.outer(Tx1, a) + Z @ Sxx11 @ Z.T + np.outer(a, Tx1) @ Z.T) / N
             R = (R.T + R)/2
             if constraint_diag_R:
-                R = diag(diag(R))
+                R = np.diag(np.diag(R))
 
         if vars_to_estimate["m0"]:
             m0 = ks["x0N"].squeeze()
@@ -1001,8 +870,9 @@ def em_with_offsets_SS_LDS(y, u0, B0, Q0, a0, Z0, R0, m0_0, V0_0,
             V0 = ks["V0N"]
             V0 = (V0.T + V0)/2
 
-    answer = dict(u=u, B=B, Q=Q, a=a, Z=Z, R=R, m0=m0, V0=V0, log_like=log_like[:(iter+1)],
-                  niter=iter)
+    answer = dict(u=u, B=B, Q=Q, a=a, Z=Z, R=R, m0=m0, V0=V0,
+                  elapsed_time=elapsed_time[:(iter+1)],
+                  log_like=log_like[:(iter+1)])
     return answer
 
 
@@ -1055,3 +925,156 @@ def lag1CovSmootherLDS_SS(Z, KN, B, Pnn, Jn, J0):
                            (Pnn1N[:, :, k] - B @ Pnn[:, :, k-1]) @ Jn[:, :, k-2].T
     Pnn1N[:, :, 0] = Pnn[:, :, 0] @ J0.T + Jn[:, :, 0] @ (Pnn1N[:, :, 1] - B @ Pnn[:, :, 0]) @ J0.T
     return Pnn1N
+
+def torch_lbfgs_optimize_SS_LDS(
+    y, u0, B0, sqrt_diag_Q0, a0, Z0, sqrt_diag_R0, m0_0, sqrt_diag_V0_0,
+    max_iter=20, lr=1.0, tolerance_grad=1e-7, tolerance_change=1e-9,
+    n_epochs = 100, line_search_fn="strong_wolfe",
+    vars_to_estimate=dict(m0=True, sqrt_diag_V0=True, u=True, B=True,
+                          sqrt_diag_Q=True, a=True, Z=True, sqrt_diag_R=True)):
+    n_latents = len(u0)
+    n_clusters = len(a0)
+
+    import torch
+    def log_likelihood_fn():
+        log_like = inference.logLikeLDS_withMissingValues_torch(
+            y=y, u=u, B=B, Q=Q, m0=m0, V0=V0, a=a, Z=Z, R=R)
+        return log_like
+
+    optim_params = {"max_iter": max_iter, "lr": lr,
+                    "tolerance_grad": tolerance_grad,
+                    "tolerance_change": tolerance_change,
+                    "line_search_fn": line_search_fn}
+    u = u0
+    B = B0
+    sqrt_diag_Q = sqrt_diag_Q0
+    Q = torch.diag(sqrt_diag_Q**2)
+    a = a0
+    Z = Z0
+    sqrt_diag_R = sqrt_diag_R0
+    R = torch.diag(sqrt_diag_R**2)
+    m0 = m0_0
+    sqrt_diag_V0 = sqrt_diag_V0_0
+    V0 = torch.diag(sqrt_diag_V0**2)
+
+    x = []
+    if vars_to_estimate["u"]:
+        x.append(u)
+    if vars_to_estimate["B"]:
+        x.append(B)
+    if vars_to_estimate["sqrt_diag_Q"]:
+        x.append(sqrt_diag_Q)
+    if vars_to_estimate["a"]:
+        x.append(a)
+    if vars_to_estimate["Z"]:
+        x.append(Z)
+    if vars_to_estimate["sqrt_diag_R"]:
+        x.append(sqrt_diag_R)
+    if vars_to_estimate["m0"]:
+        x.append(m0)
+    if vars_to_estimate["sqrt_diag_V0"]:
+        x.append(sqrt_diag_V0)
+    if len(x) == 0:
+        raise RuntimeError("No variable to estimate. Please set one element "
+                           "of vars_to_estimate to True")
+    optimizer = torch.optim.LBFGS(x, **optim_params)
+    for i in range(len(x)):
+        x[i].requires_grad = True
+
+    def closure():
+        optimizer.zero_grad()
+        curEval = -log_likelihood_fn()
+        curEval.backward()
+        print_string = f"ll={-curEval}"
+        if vars_to_estimate["u"]:
+            print_string += f", u={str(u[:min(5, n_latents)])}"
+        if vars_to_estimate["B"]:
+            print_string += f", B={str(B[0,:min(5, n_latents)])}"
+        if vars_to_estimate["sqrt_diag_Q"]:
+            print_string += f", sqrt_diag_Q={str(sqrt_diag_Q[:min(5,n_latents)])}"
+        if vars_to_estimate["a"]:
+            print_string += f", a={str(a[:min(5,n_clusters)])}"
+        if vars_to_estimate["Z"]:
+            print_string += f", Z={str(Z[0,:min(5, n_latents)])}"
+        if vars_to_estimate["sqrt_diag_R"]:
+            print_string += f", sqrt_diag_R={str(sqrt_diag_R[:min(5,n_clusters)])}"
+        if vars_to_estimate["m0"]:
+            print_string += f", m0={str(m0[:min(5, n_latents)])}"
+        if vars_to_estimate["sqrt_diag_V0"]:
+            print_string += f", sqrt_diag_V0={str(sqrt_diag_V0[:min(5,n_latents)])}"
+        print(print_string)
+        return curEval
+
+    termination_info = "warning: reached maximum number of iterations"
+    log_like = []
+    elapsed_time = []
+    start_time = time.time()
+    curEval = -log_likelihood_fn()
+    log_like.append(-curEval.item())
+    elapsed_time.append(time.time() - start_time)
+    print("--------------------------------------------------------------------------------")
+    print(f"startup")
+    print(f"likelihood: {log_like[-1]}")
+    for epoch in range(n_epochs):
+        curEval = optimizer.step(closure)
+        curEval = -log_likelihood_fn()
+        log_like.append(-curEval.item())
+        elapsed_time.append(time.time() - start_time)
+        print("--------------------------------------------------------------------------------")
+        print(f"epoch: {epoch}")
+        print_string = f"ll={-curEval}"
+        if vars_to_estimate["u"]:
+            print_string += f", u={str(u)}"
+        if vars_to_estimate["B"]:
+            print_string += f", B={str(B)}"
+        if vars_to_estimate["sqrt_diag_Q"]:
+            print_string += f", sqrt_diag_Q={str(sqrt_diag_Q)}"
+        if vars_to_estimate["a"]:
+            print_string += f", a={str(a)}"
+        if vars_to_estimate["Z"]:
+            print_string += f", Z={str(Z)}"
+        if vars_to_estimate["sqrt_diag_R"]:
+            print_string += f", sqrt_diag_R={str(sqrt_diag_R)}"
+        if vars_to_estimate["m0"]:
+            print_string += f", m0={str(m0)}"
+        if vars_to_estimate["sqrt_diag_V0"]:
+            print_string += f", sqrt_diag_V0={str(sqrt_diag_V0)}"
+        elif iter > 0 and log_like[-1] - log_like[-2] < tolerance_change:
+            termination_info = "success: converged"
+            break
+        print(print_string)
+    for i in range(len(x)):
+        x[i].requires_grad = False
+
+    estimates = {}
+    initial_conditions = {}
+    if vars_to_estimate["u"]:
+        initial_conditions["u"] = u0
+        estimates["u"] = u
+    if vars_to_estimate["B"]:
+        initial_conditions["B"] = B0
+        estimates["B"] = B
+    if vars_to_estimate["sqrt_diag_Q"]:
+        initial_conditions["sqrt_diag_Q"] = sqrt_diag_Q0
+        estimates["sqrt_diag_Q"] = sqrt_diag_Q
+    if vars_to_estimate["a"]:
+        initial_conditions["a"] = a0
+        estimates["a"] = a
+    if vars_to_estimate["Z"]:
+        initial_conditions["Z"] = Z0
+        estimates["Z"] = Z
+    if vars_to_estimate["sqrt_diag_R"]:
+        initial_conditions["sqrt_diag_R"] = sqrt_diag_R0
+        estimates["sqrt_diag_R"] = sqrt_diag_R
+    if vars_to_estimate["m0"]:
+        initial_conditions["m0"] = m0_0
+        estimates["m0"] = m0
+    if vars_to_estimate["sqrt_diag_V0"]:
+        initial_conditions["sqrt_diag_V0"] = sqrt_diag_V0_0
+        estimates["sqrt_diag_V0"] = sqrt_diag_V0
+    answer = {"initial_conditions": initial_conditions,
+              "estimates": estimates,
+              "log_like": log_like,
+              "elapsed_time": elapsed_time,
+              "termination_info": termination_info}
+    return answer
