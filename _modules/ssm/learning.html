@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ssm.learning &mdash; Linear Dynamical Systems  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Linear Dynamical Systems
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_examples/index.html">Demo scripts</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Linear Dynamical Systems</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">ssm.learning</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for ssm.learning</h1><div class="highlight"><pre>
+<span></span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.optimize</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">inference</span>
+<span class="kn">from</span> <span class="nn">.tracking</span> <span class="kn">import</span> <span class="n">utils</span>
+
+<span class="n">iteration</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+<div class="viewcode-block" id="scipy_optimize_SS_tracking_fullV0"><a class="viewcode-back" href="../../ssm.html#ssm.learning.scipy_optimize_SS_tracking_fullV0">[docs]</a><span class="k">def</span> <span class="nf">scipy_optimize_SS_tracking_fullV0</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">sigma_a0</span><span class="p">,</span> <span class="n">Qe</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">diag_R_0</span><span class="p">,</span>
+                                      <span class="n">m0_0</span><span class="p">,</span> <span class="n">V0_0</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="n">iL_V0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tril_indices</span><span class="p">(</span><span class="n">V0_0</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">get_coefs_from_params</span><span class="p">(</span><span class="n">sigma_a</span><span class="p">,</span> <span class="n">diag_R</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">iL_V0</span><span class="o">=</span><span class="n">iL_V0</span><span class="p">):</span>
+        <span class="n">V0_chol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">cholesky</span><span class="p">(</span><span class="n">V0</span><span class="p">)</span>
+        <span class="n">L_coefs</span> <span class="o">=</span> <span class="n">V0_chol</span><span class="p">[</span><span class="n">iL_V0</span><span class="p">]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">diag_R</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">L_coefs</span><span class="p">]),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sigma_a</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">get_params_from_coefs</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">iL_V0</span><span class="o">=</span><span class="n">iL_V0</span><span class="p">,</span> <span class="n">sigma_a0</span><span class="o">=</span><span class="n">sigma_a0</span><span class="p">,</span>
+                              <span class="n">diag_R_0</span><span class="o">=</span><span class="n">diag_R_0</span><span class="p">,</span> <span class="n">m0_0</span><span class="o">=</span><span class="n">m0_0</span><span class="p">,</span> <span class="n">V0_0</span><span class="o">=</span><span class="n">V0_0</span><span class="p">):</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">sigma_a</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">cur</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+        <span class="n">cur</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sigma_a</span><span class="p">)</span>
+        <span class="n">diag_R</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">cur</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">diag_R_0</span><span class="p">))]</span>
+        <span class="n">cur</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">diag_R</span><span class="p">)</span>
+        <span class="n">m0</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">cur</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">m0_0</span><span class="p">))]</span>
+        <span class="n">cur</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">m0</span><span class="p">)</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">V0_0</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">L_coefs</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">cur</span><span class="o">+</span><span class="nb">int</span><span class="p">(</span><span class="n">M</span><span class="o">*</span><span class="p">(</span><span class="n">M</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">))]</span>
+        <span class="n">L_V0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">V0_0</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">L_V0</span><span class="p">[</span><span class="n">iL_V0</span><span class="p">]</span> <span class="o">=</span> <span class="n">L_coefs</span>
+        <span class="n">V0</span> <span class="o">=</span> <span class="n">L_V0</span> <span class="o">@</span> <span class="n">L_V0</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">return</span> <span class="n">sigma_a</span><span class="p">,</span> <span class="n">diag_R</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span>
+
+    <span class="k">def</span> <span class="nf">optim_criterion</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">sigma_a</span><span class="p">,</span> <span class="n">diag_R</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span> <span class="o">=</span> <span class="n">get_params_from_coefs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">diag_R</span><span class="p">)</span>
+        <span class="n">kf</span> <span class="o">=</span> <span class="n">inference</span><span class="o">.</span><span class="n">filterLDS_SS_withMissingValues</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="n">sigma_a</span><span class="o">*</span><span class="n">Qe</span><span class="p">,</span>
+                                                      <span class="n">m0</span><span class="o">=</span><span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="o">=</span><span class="n">V0</span><span class="p">,</span> <span class="n">Z</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">)</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">kf</span><span class="p">[</span><span class="s2">&quot;Sn&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+            <span class="n">innov</span> <span class="o">=</span> <span class="n">kf</span><span class="p">[</span><span class="s2">&quot;innov&quot;</span><span class="p">][:,</span> <span class="p">:,</span> <span class="n">n</span><span class="p">]</span>
+            <span class="n">Sn</span> <span class="o">=</span> <span class="n">kf</span><span class="p">[</span><span class="s2">&quot;Sn&quot;</span><span class="p">][:,:,</span><span class="n">n</span><span class="p">]</span> 
+
+            <span class="n">Sn_inv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">Sn</span><span class="p">)</span>
+            <span class="n">answer</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">Sn</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">answer</span> <span class="o">+=</span> <span class="n">innov</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">Sn_inv</span> <span class="o">@</span> <span class="n">innov</span>
+        <span class="k">return</span> <span class="n">answer</span>
+
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">global</span> <span class="n">iteration</span>
+        <span class="n">iteration</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">sigma_a</span><span class="p">,</span> <span class="n">diag_R</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span> <span class="o">=</span> <span class="n">get_params_from_coefs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">optim_value</span> <span class="o">=</span> <span class="n">optim_criterion</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Iteration: </span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">iteration</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;optim criterion: </span><span class="si">{:f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">optim_value</span><span class="o">.</span><span class="n">item</span><span class="p">()))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sigma_a=</span><span class="si">{:f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sigma_a</span><span class="o">.</span><span class="n">item</span><span class="p">()))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;diag_R:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">diag_R</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;m0:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">m0</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;V0:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">V0</span><span class="p">)</span>
+
+    <span class="n">x0</span> <span class="o">=</span> <span class="n">get_coefs_from_params</span><span class="p">(</span><span class="n">sigma_a</span><span class="o">=</span><span class="n">sigma_a0</span><span class="p">,</span> <span class="n">diag_R</span><span class="o">=</span><span class="n">diag_R_0</span><span class="p">,</span>
+                               <span class="n">m0</span><span class="o">=</span><span class="n">m0_0</span><span class="p">,</span> <span class="n">V0</span><span class="o">=</span><span class="n">V0_0</span><span class="p">)</span>
+    <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;disp&quot;</span><span class="p">:</span> <span class="n">disp</span><span class="p">,</span> <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="n">max_iter</span><span class="p">}</span>
+    <span class="n">opt_res</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">optim_criterion</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;Nelder-Mead&quot;</span><span class="p">,</span>
+                                      <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="torch_lbfgs_optimize_kinematicsHO_logLikeEKF_diagV0"><a class="viewcode-back" href="../../ssm.html#ssm.learning.torch_lbfgs_optimize_kinematicsHO_logLikeEKF_diagV0">[docs]</a><span class="k">def</span> <span class="nf">torch_lbfgs_optimize_kinematicsHO_logLikeEKF_diagV0</span><span class="p">(</span>
+    <span class="n">dt</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma_a0</span><span class="p">,</span>
+    <span class="n">cos_theta_Q_std0</span><span class="p">,</span>
+    <span class="n">sin_theta_Q_std0</span><span class="p">,</span>
+    <span class="n">omega_Q_std0</span><span class="p">,</span>
+    <span class="n">pos_x_R_std0</span><span class="p">,</span>
+    <span class="n">pos_y_R_std0</span><span class="p">,</span>
+    <span class="n">cos_theta_R_std0</span><span class="p">,</span>
+    <span class="n">sin_theta_R_std0</span><span class="p">,</span>
+    <span class="n">alpha0</span><span class="p">,</span>
+    <span class="n">m0_kinematics_0</span><span class="p">,</span>
+    <span class="n">m0_HO_0</span><span class="p">,</span>
+    <span class="n">sqrt_diag_V0_kinematics_0</span><span class="p">,</span>
+    <span class="n">sqrt_diag_V0_HO_0</span><span class="p">,</span>
+    <span class="n">max_iter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">tolerance_grad</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">,</span>
+    <span class="n">tolerance_change</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span>
+    <span class="n">line_search_fn</span><span class="o">=</span><span class="s2">&quot;strong_wolfe&quot;</span><span class="p">,</span>
+    <span class="n">n_epochs</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>
+    <span class="n">vars_to_estimate</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;sigma_a&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;cos_theta_Q_std&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;sin_theta_Q_std&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;omega_Q_std&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;sqrt_pos_x_R_std&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;sqrt_pos_y_R_std&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;sqrt_cos_theta_R_std&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;sqrt_sin_theta_R_std&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;m0_kinematics&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;m0_HO&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;sqrt_diag_V0_kinematics&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;sqrt_diag_V0_HO&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">disp</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+    <span class="kn">import</span> <span class="nn">torch</span>
+    <span class="k">def</span> <span class="nf">log_likelihood_fn</span><span class="p">():</span>
+        <span class="n">B</span><span class="p">,</span> <span class="n">Bdot</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">Zdot</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">R</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">getNDSwithGaussianNoiseFunctionsForKinematicsAndHO_torch</span><span class="p">(</span>
+            <span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span> <span class="n">sigma_a</span><span class="o">=</span><span class="n">sigma_a</span><span class="p">,</span>
+            <span class="n">cos_theta_Q_std</span><span class="o">=</span><span class="n">cos_theta_Q_std</span><span class="p">,</span>
+            <span class="n">sin_theta_Q_std</span><span class="o">=</span><span class="n">sin_theta_Q_std</span><span class="p">,</span>
+            <span class="n">omega_Q_std</span><span class="o">=</span><span class="n">omega_Q_std</span><span class="p">,</span>
+            <span class="n">pos_x_R_std</span><span class="o">=</span><span class="n">pos_x_R_std</span><span class="p">,</span>
+            <span class="n">pos_y_R_std</span><span class="o">=</span><span class="n">pos_y_R_std</span><span class="p">,</span>
+            <span class="n">cos_theta_R_std</span><span class="o">=</span><span class="n">cos_theta_R_std</span><span class="p">,</span>
+            <span class="n">sin_theta_R_std</span><span class="o">=</span><span class="n">sin_theta_R_std</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">log_like</span> <span class="o">=</span> <span class="n">inference</span><span class="o">.</span><span class="n">logLikeEKF_withMissingValues_torch</span><span class="p">(</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span> <span class="n">Bdot</span><span class="o">=</span><span class="n">Bdot</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="o">=</span><span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="o">=</span><span class="n">V0</span><span class="p">,</span> <span class="n">Z</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">Zdot</span><span class="o">=</span><span class="n">Zdot</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">log_like</span>
+
+    <span class="n">optim_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="n">max_iter</span><span class="p">,</span> <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="n">lr</span><span class="p">,</span>
+                    <span class="s2">&quot;tolerance_grad&quot;</span><span class="p">:</span> <span class="n">tolerance_grad</span><span class="p">,</span>
+                    <span class="s2">&quot;tolerance_change&quot;</span><span class="p">:</span> <span class="n">tolerance_change</span><span class="p">,</span>
+                    <span class="s2">&quot;line_search_fn&quot;</span><span class="p">:</span> <span class="n">line_search_fn</span><span class="p">}</span>
+    <span class="n">m0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">m0_kinematics_0</span><span class="p">,</span> <span class="n">m0_HO_0</span><span class="p">])</span>
+    <span class="n">sqrt_diag_V0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">sqrt_diag_V0_kinematics_0</span><span class="p">,</span> <span class="n">sqrt_diag_V0_HO_0</span><span class="p">])</span>
+    <span class="n">sigma_a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">sigma_a0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="n">cos_theta_Q_std</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">cos_theta_Q_std0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="n">sin_theta_Q_std</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">sin_theta_Q_std0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="n">omega_Q_std</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">omega_Q_std0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+
+    <span class="n">pos_x_R_std</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">pos_x_R_std0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="n">pos_y_R_std</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">pos_y_R_std0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="n">cos_theta_R_std</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">cos_theta_R_std0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="n">sin_theta_R_std</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">sin_theta_R_std0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">alpha0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sigma_a</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;cos_theta_Q_std&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cos_theta_Q_std</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sin_theta_Q_std&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sin_theta_Q_std</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;omega_Q_std&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">omega_Q_std</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;pos_x_R_std&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pos_x_R_std</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;pos_y_R_std&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pos_y_R_std</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;cos_theta_R_std&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cos_theta_R_std</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sin_theta_R_std&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sin_theta_R_std</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0_kinematics&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0_HO&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0_kinematics&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0_HO&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sqrt_diag_V0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No variable to estimate. Please set one element &quot;</span>
+                           <span class="s2">&quot;of vars_to_estimate to True&quot;</span><span class="p">)</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">LBFGS</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">optim_params</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">closure</span><span class="p">():</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+        <span class="n">curEval</span> <span class="o">=</span> <span class="o">-</span><span class="n">log_likelihood_fn</span><span class="p">()</span>
+        <span class="n">curEval</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="n">print_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;ll=</span><span class="si">{</span><span class="o">-</span><span class="n">curEval</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]:</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, sigma_a=</span><span class="si">{</span><span class="n">sigma_a</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;cos_theta_Q_std&quot;</span><span class="p">]:</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, cos_theta_Q_std=</span><span class="si">{</span><span class="n">cos_theta_Q_std</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sin_theta_Q_std&quot;</span><span class="p">]:</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, sin_theta_Q_std=</span><span class="si">{</span><span class="n">sin_theta_Q_std</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;omega_Q_std&quot;</span><span class="p">]:</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, omega_Q_std=</span><span class="si">{</span><span class="n">omega_Q_std</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;pos_x_R_std&quot;</span><span class="p">]:</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, pos_x_R_std=</span><span class="si">{</span><span class="n">pos_x_R_std</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;pos_y_R_std&quot;</span><span class="p">]:</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, pos_y_R_std=</span><span class="si">{</span><span class="n">pos_y_R_std</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;cos_theta_R_std&quot;</span><span class="p">]:</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, cos_theta_R_std=</span><span class="si">{</span><span class="n">cos_theta_R_std</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sin_theta_R_std&quot;</span><span class="p">]:</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, sin_theta_R_std=</span><span class="si">{</span><span class="n">sin_theta_R_std</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]:</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, alpha=</span><span class="si">{</span><span class="n">alpha</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0_kinematics&quot;</span><span class="p">]:</span>
+            <span class="n">m0</span><span class="o">.</span><span class="n">grad</span><span class="p">[</span><span class="mi">6</span><span class="p">:]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, m0=</span><span class="si">{</span><span class="n">m0</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0_HO&quot;</span><span class="p">]:</span>
+            <span class="n">m0</span><span class="o">.</span><span class="n">grad</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, m0=</span><span class="si">{</span><span class="n">m0</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0_kinematics&quot;</span><span class="p">]:</span>
+            <span class="n">sqrt_diag_V0</span><span class="o">.</span><span class="n">grad</span><span class="p">[</span><span class="mi">6</span><span class="p">:]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, sqrt_diag_V0=</span><span class="si">{</span><span class="n">sqrt_diag_V0</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0_HO&quot;</span><span class="p">]:</span>
+            <span class="n">sqrt_diag_V0</span><span class="o">.</span><span class="n">grad</span><span class="p">[:</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, sqrt_diag_V0=</span><span class="si">{</span><span class="n">sqrt_diag_V0</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">print_string</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">curEval</span>
+
+    <span class="n">termination_info</span> <span class="o">=</span> <span class="s2">&quot;success: reached maximum number of iterations&quot;</span>
+    <span class="n">log_like</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">elapsed_time</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">V0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">sqrt_diag_V0</span><span class="p">)</span>
+    <span class="n">curEval</span> <span class="o">=</span> <span class="o">-</span><span class="n">log_likelihood_fn</span><span class="p">()</span>
+    <span class="n">log_like</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">curEval</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+    <span class="n">elapsed_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------------------------------------------------------&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;startup&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;likelihood: </span><span class="si">{</span><span class="n">log_like</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_epochs</span><span class="p">):</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">closure</span><span class="p">)</span>
+        <span class="n">curEval</span> <span class="o">=</span> <span class="o">-</span><span class="n">log_likelihood_fn</span><span class="p">()</span>
+        <span class="n">log_like</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">curEval</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+        <span class="n">elapsed_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------------------------------------------------------&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epoch: </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;likelihood: </span><span class="si">{</span><span class="n">log_like</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sigma_a: &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">sigma_a</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;cos_theta_Q_std&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;cos_theta_Q_std: &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">cos_theta_Q_std</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sin_theta_Q_std&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sin_theta_Q_std: &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">sin_theta_Q_std</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;omega_Q_std&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;omega_Q_std: &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">omega_Q_std</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;pos_x_R_std&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pos_x_R_std: &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">pos_x_R_std</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;pos_y_R_std&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pos_y_R_std: &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">pos_y_R_std</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;cos_theta_R_std&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;cos_theta_R_std: &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">cos_theta_R_std</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sin_theta_R_std&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sin_theta_R_std: &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">sin_theta_R_std</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;alpha: &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">alpha</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0_kinematics&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0_HO&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;m0: &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">m0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0_kinematics&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0_HO&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sqrt_diag_V0: &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">sqrt_diag_V0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">epoch</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">log_like</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">log_like</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="n">termination_info</span> <span class="o">=</span> <span class="s2">&quot;success: converged&quot;</span>
+            <span class="k">break</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">estimates</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]:</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma_a</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;cos_theta_Q_std&quot;</span><span class="p">]:</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;cos_theta_Q_std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cos_theta_Q_std</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sin_theta_Q_std&quot;</span><span class="p">]:</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;sin_theta_Q_std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sin_theta_Q_std</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;omega_Q_std&quot;</span><span class="p">]:</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;omega_Q_std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">omega_Q_std</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;pos_x_R_std&quot;</span><span class="p">]:</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;pos_x_R_std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos_x_R_std</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;pos_y_R_std&quot;</span><span class="p">]:</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;pos_y_R_std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos_y_R_std</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;cos_theta_R_std&quot;</span><span class="p">]:</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;cos_theta_R_std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cos_theta_R_std</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sin_theta_R_std&quot;</span><span class="p">]:</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;sin_theta_R_std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sin_theta_R_std</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]:</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;alpha&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">alpha</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0_kinematics&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0_HO&quot;</span><span class="p">]:</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;m0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m0</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0_kinematics&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0_HO&quot;</span><span class="p">]:</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sqrt_diag_V0</span>
+    <span class="n">answer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;estimates&quot;</span><span class="p">:</span> <span class="n">estimates</span><span class="p">,</span>
+              <span class="s2">&quot;log_like&quot;</span><span class="p">:</span> <span class="n">log_like</span><span class="p">,</span>
+              <span class="s2">&quot;elapsed_time&quot;</span><span class="p">:</span> <span class="n">elapsed_time</span><span class="p">,</span>
+              <span class="s2">&quot;termination_info&quot;</span><span class="p">:</span> <span class="n">termination_info</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">answer</span></div>
+
+
+<div class="viewcode-block" id="scipy_optimize_SS_tracking_diagV0"><a class="viewcode-back" href="../../ssm.html#ssm.learning.scipy_optimize_SS_tracking_diagV0">[docs]</a><span class="k">def</span> <span class="nf">scipy_optimize_SS_tracking_diagV0</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">sigma_ax0</span><span class="p">,</span> <span class="n">sigma_ay0</span><span class="p">,</span> <span class="n">Qe</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span>
+                                      <span class="n">sqrt_diag_R_0</span><span class="p">,</span> <span class="n">m0_0</span><span class="p">,</span> <span class="n">sqrt_diag_V0_0</span><span class="p">,</span>
+                                      <span class="n">max_iter</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">disp</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">get_coefs_from_params</span><span class="p">(</span><span class="n">sigma_ax</span><span class="p">,</span> <span class="n">sigma_ay</span><span class="p">,</span> <span class="n">sqrt_diag_R</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span>
+                              <span class="n">sqrt_diag_V0</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="n">sigma_ax</span><span class="p">,</span> <span class="n">sigma_ay</span><span class="p">],</span> <span class="n">sqrt_diag_R</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span>
+                            <span class="n">sqrt_diag_V0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="k">def</span> <span class="nf">get_params_from_coefs</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sigma_ax0</span><span class="o">=</span><span class="n">sigma_ax0</span><span class="p">,</span> <span class="n">sigma_ay0</span><span class="o">=</span><span class="n">sigma_ay0</span><span class="p">,</span>
+                              <span class="n">sqrt_diag_R_0</span><span class="o">=</span><span class="n">sqrt_diag_R_0</span><span class="p">,</span> <span class="n">m0_0</span><span class="o">=</span><span class="n">m0_0</span><span class="p">,</span>
+                              <span class="n">sqrt_diag_V0_0</span><span class="o">=</span><span class="n">sqrt_diag_V0_0</span><span class="p">):</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">sigma_ax</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">cur</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+        <span class="n">cur</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sigma_ax</span><span class="p">)</span>
+        <span class="n">sigma_ay</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">cur</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+        <span class="n">cur</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sigma_ay</span><span class="p">)</span>
+        <span class="n">sqrt_diag_R</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">cur</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">sqrt_diag_R_0</span><span class="p">))]</span>
+        <span class="n">cur</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sqrt_diag_R</span><span class="p">)</span>
+        <span class="n">m0</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">cur</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">m0_0</span><span class="p">))]</span>
+        <span class="n">cur</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">m0</span><span class="p">)</span>
+        <span class="n">sqrt_diag_V0</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">cur</span><span class="o">+</span><span class="nb">len</span><span class="p">(</span><span class="n">sqrt_diag_V0_0</span><span class="p">))]</span>
+
+        <span class="k">return</span> <span class="n">sigma_ax</span><span class="p">,</span> <span class="n">sigma_ay</span><span class="p">,</span> <span class="n">sqrt_diag_R</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">sqrt_diag_V0</span>
+
+    <span class="k">def</span> <span class="nf">optim_criterion</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">sigma_ax</span><span class="p">,</span> <span class="n">sigma_ay</span><span class="p">,</span> <span class="n">sqrt_diag_R</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">sqrt_diag_V0</span> <span class="o">=</span> \
+            <span class="n">get_params_from_coefs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">V0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">sqrt_diag_V0</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">sqrt_diag_R</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="c1"># build Q from Qe, sigma_ax, sigma_ay</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">buildQfromQe_np</span><span class="p">(</span><span class="n">Qe</span><span class="o">=</span><span class="n">Qe</span><span class="p">,</span> <span class="n">sigma_ax</span><span class="o">=</span><span class="n">sigma_ax</span><span class="p">,</span> <span class="n">sigma_ay</span><span class="o">=</span><span class="n">sigma_ay</span><span class="p">)</span>
+
+        <span class="n">kf</span> <span class="o">=</span> <span class="n">inference</span><span class="o">.</span><span class="n">filterLDS_SS_withMissingValues_np</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="n">Q</span><span class="p">,</span>
+                                                         <span class="n">m0</span><span class="o">=</span><span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="o">=</span><span class="n">V0</span><span class="p">,</span> <span class="n">Z</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">)</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">kf</span><span class="p">[</span><span class="s2">&quot;Sn&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+            <span class="n">innov</span> <span class="o">=</span> <span class="n">kf</span><span class="p">[</span><span class="s2">&quot;innov&quot;</span><span class="p">][:,</span> <span class="p">:,</span> <span class="n">n</span><span class="p">]</span>
+            <span class="n">Sn</span> <span class="o">=</span> <span class="n">kf</span><span class="p">[</span><span class="s2">&quot;Sn&quot;</span><span class="p">][:,</span> <span class="p">:,</span> <span class="n">n</span><span class="p">]</span>
+
+            <span class="n">Sn_inv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">Sn</span><span class="p">)</span>
+            <span class="n">answer</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">Sn</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">answer</span> <span class="o">+=</span> <span class="n">innov</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">Sn_inv</span> <span class="o">@</span> <span class="n">innov</span>
+        <span class="k">return</span> <span class="n">answer</span>
+
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="k">global</span> <span class="n">iteration</span>
+        <span class="n">iteration</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">sigma_ax</span><span class="p">,</span> <span class="n">sigma_ay</span><span class="p">,</span> <span class="n">sqrt_diag_R</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">sqrt_diag_V0</span> <span class="o">=</span> \
+            <span class="n">get_params_from_coefs</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">optim_value</span> <span class="o">=</span> <span class="n">optim_criterion</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Iteration: </span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">iteration</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;optim criterion: </span><span class="si">{:f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">optim_value</span><span class="o">.</span><span class="n">item</span><span class="p">()))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sigma_ax=</span><span class="si">{:f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sigma_ax</span><span class="o">.</span><span class="n">item</span><span class="p">()))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sigma_ay=</span><span class="si">{:f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sigma_ay</span><span class="o">.</span><span class="n">item</span><span class="p">()))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sqrt_diag_R:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">sqrt_diag_R</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;m0:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">m0</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sqrt_diag_V0:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">sqrt_diag_V0</span><span class="p">)</span>
+
+    <span class="n">x0</span> <span class="o">=</span> <span class="n">get_coefs_from_params</span><span class="p">(</span><span class="n">sigma_ax</span><span class="o">=</span><span class="n">sigma_ax0</span><span class="p">,</span> <span class="n">sigma_ay</span><span class="o">=</span><span class="n">sigma_ay0</span><span class="p">,</span>
+                               <span class="n">sqrt_diag_R</span><span class="o">=</span><span class="n">sqrt_diag_R_0</span><span class="p">,</span> <span class="n">m0</span><span class="o">=</span><span class="n">m0_0</span><span class="p">,</span>
+                               <span class="n">sqrt_diag_V0</span><span class="o">=</span><span class="n">sqrt_diag_V0_0</span><span class="p">)</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;disp&quot;</span><span class="p">:</span> <span class="n">disp</span><span class="p">,</span> <span class="s2">&quot;maxiter&quot;</span><span class="p">:</span> <span class="n">max_iter</span><span class="p">}</span>
+    <span class="n">opt_res</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">optimize</span><span class="o">.</span><span class="n">minimize</span><span class="p">(</span><span class="n">optim_criterion</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span>
+                                      <span class="n">method</span><span class="o">=</span><span class="s2">&quot;Nelder-Mead&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span>
+                                      <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+    <span class="n">sigma_ax</span><span class="p">,</span> <span class="n">sigma_ay</span><span class="p">,</span> <span class="n">sqrt_diag_R</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">sqrt_diag_V0</span> <span class="o">=</span> \
+        <span class="n">get_params_from_coefs</span><span class="p">(</span><span class="n">opt_res</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">])</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;sigma_ax&quot;</span><span class="p">:</span> <span class="n">sigma_ax</span><span class="p">,</span> <span class="s2">&quot;sigma_ay&quot;</span><span class="p">:</span> <span class="n">sigma_ay</span><span class="p">,</span>
+         <span class="s2">&quot;sqrt_diag_R&quot;</span><span class="p">:</span> <span class="n">sqrt_diag_R</span><span class="p">,</span> <span class="s2">&quot;m0&quot;</span><span class="p">:</span> <span class="n">m0</span><span class="p">,</span>
+         <span class="s2">&quot;sqrt_diag_V0&quot;</span><span class="p">:</span> <span class="n">sqrt_diag_V0</span><span class="p">}</span>
+    <span class="n">answer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;fun&quot;</span><span class="p">:</span> <span class="n">opt_res</span><span class="p">[</span><span class="s2">&quot;fun&quot;</span><span class="p">],</span> <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="n">opt_res</span><span class="p">[</span><span class="s2">&quot;message&quot;</span><span class="p">],</span>
+              <span class="s2">&quot;nfev&quot;</span><span class="p">:</span> <span class="n">opt_res</span><span class="p">[</span><span class="s2">&quot;nfev&quot;</span><span class="p">],</span> <span class="s2">&quot;nit&quot;</span><span class="p">:</span> <span class="n">opt_res</span><span class="p">[</span><span class="s2">&quot;nit&quot;</span><span class="p">],</span>
+              <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">opt_res</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">],</span> <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="n">opt_res</span><span class="p">[</span><span class="s2">&quot;success&quot;</span><span class="p">],</span>
+              <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">answer</span></div>
+
+
+<div class="viewcode-block" id="torch_lbfgs_optimize_SS_tracking_diagV0"><a class="viewcode-back" href="../../ssm.html#ssm.learning.torch_lbfgs_optimize_SS_tracking_diagV0">[docs]</a><span class="k">def</span> <span class="nf">torch_lbfgs_optimize_SS_tracking_diagV0</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Qe</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span>
+                                            <span class="n">sigma_a0</span><span class="p">,</span> <span class="n">pos_x_R_std0</span><span class="p">,</span>
+                                            <span class="n">pos_y_R_std0</span><span class="p">,</span>
+                                            <span class="n">m0_0</span><span class="p">,</span> <span class="n">sqrt_diag_V0_0</span><span class="p">,</span>
+                                            <span class="n">max_iter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                                            <span class="n">tolerance_grad</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">,</span>
+                                            <span class="n">tolerance_change</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span>
+                                            <span class="n">n_epochs</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>
+                                            <span class="n">line_search_fn</span><span class="o">=</span><span class="s2">&quot;strong_wolfe&quot;</span><span class="p">,</span>
+                                            <span class="n">vars_to_estimate</span><span class="o">=</span><span class="p">{</span>
+                                                <span class="s2">&quot;sigma_a&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                                                <span class="s2">&quot;pos_x_R_std&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                                                <span class="s2">&quot;pos_y_R_std&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                                                <span class="s2">&quot;m0&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                                                <span class="s2">&quot;sqrt_diag_V0&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}):</span>
+
+    <span class="kn">import</span> <span class="nn">torch</span>
+    <span class="k">def</span> <span class="nf">log_likelihood_fn</span><span class="p">():</span>
+        <span class="n">V0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">sqrt_diag_V0</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">e1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+        <span class="n">e2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="p">(</span><span class="n">pos_x_R_std</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">e1</span><span class="p">,</span> <span class="n">e1</span><span class="p">)</span> <span class="o">+</span>
+             <span class="n">pos_y_R_std</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">e2</span><span class="p">,</span> <span class="n">e2</span><span class="p">))</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="n">Qe</span> <span class="o">*</span> <span class="n">sigma_a</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">log_like</span> <span class="o">=</span> <span class="n">inference</span><span class="o">.</span><span class="n">logLikeLDS_withMissingValues_torch</span><span class="p">(</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="o">=</span><span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="o">=</span><span class="n">V0</span><span class="p">,</span> <span class="n">Z</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">log_like</span>
+
+    <span class="n">optim_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="n">max_iter</span><span class="p">,</span> <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="n">lr</span><span class="p">,</span>
+                    <span class="s2">&quot;tolerance_grad&quot;</span><span class="p">:</span> <span class="n">tolerance_grad</span><span class="p">,</span>
+                    <span class="s2">&quot;tolerance_change&quot;</span><span class="p">:</span> <span class="n">tolerance_change</span><span class="p">,</span>
+                    <span class="s2">&quot;line_search_fn&quot;</span><span class="p">:</span> <span class="n">line_search_fn</span><span class="p">}</span>
+    <span class="n">sigma_a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">sigma_a0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="n">pos_x_R_std</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">pos_x_R_std0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="n">pos_y_R_std</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">pos_y_R_std0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
+    <span class="n">m0</span> <span class="o">=</span> <span class="n">m0_0</span>
+    <span class="n">sqrt_diag_V0</span> <span class="o">=</span> <span class="n">sqrt_diag_V0_0</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sigma_a</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;pos_x_R_std&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pos_x_R_std</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;pos_y_R_std&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pos_y_R_std</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sqrt_diag_V0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No variable to estimate. Please set one element &quot;</span>
+                           <span class="s2">&quot;of vars_to_estimate to True&quot;</span><span class="p">)</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">LBFGS</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">optim_params</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">closure</span><span class="p">():</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+        <span class="n">curEval</span> <span class="o">=</span> <span class="o">-</span><span class="n">log_likelihood_fn</span><span class="p">()</span>
+        <span class="n">curEval</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="n">print_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;ll=</span><span class="si">{</span><span class="o">-</span><span class="n">curEval</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]:</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, sigma_a=</span><span class="si">{</span><span class="n">sigma_a</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;pos_x_R_std&quot;</span><span class="p">]:</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, pos_x_R_std=</span><span class="si">{</span><span class="n">pos_x_R_std</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;pos_y_R_std&quot;</span><span class="p">]:</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, pos_y_R_std=</span><span class="si">{</span><span class="n">pos_y_R_std</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0&quot;</span><span class="p">]:</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, m0=</span><span class="si">{</span><span class="n">m0</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0&quot;</span><span class="p">]:</span>
+            <span class="n">print_string</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, sqrt_diag_V0=</span><span class="si">{</span><span class="n">sqrt_diag_V0</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">print_string</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">curEval</span>
+
+    <span class="n">termination_info</span> <span class="o">=</span> <span class="s2">&quot;success: reached maximum number of iterations&quot;</span>
+    <span class="n">log_like</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">elapsed_time</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">curEval</span> <span class="o">=</span> <span class="o">-</span><span class="n">log_likelihood_fn</span><span class="p">()</span>
+    <span class="n">log_like</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">curEval</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+    <span class="n">elapsed_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------------------------------------------------------&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;startup&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;likelihood: </span><span class="si">{</span><span class="n">log_like</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_epochs</span><span class="p">):</span>
+        <span class="n">curEval</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">closure</span><span class="p">)</span>
+        <span class="n">curEval</span> <span class="o">=</span> <span class="o">-</span><span class="n">log_likelihood_fn</span><span class="p">()</span>
+        <span class="n">log_like</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">curEval</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+        <span class="n">elapsed_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------------------------------------------------------&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;epoch: </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;likelihood: </span><span class="si">{</span><span class="n">log_like</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sigma_a: &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">sigma_a</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;pos_x_R_std&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pos_x_R_std: &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">pos_x_R_std</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;pos_y_R_std&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pos_y_R_std: &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">pos_y_R_std</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;m0: &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">m0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0&quot;</span><span class="p">]:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sqrt_diag_V0: &quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">sqrt_diag_V0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">epoch</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">log_like</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">log_like</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="n">termination_info</span> <span class="o">=</span> <span class="s2">&quot;success: converged&quot;</span>
+            <span class="k">break</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">estimates</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">initial_conditions</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]:</span>
+        <span class="n">initial_conditions</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma_a0</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma_a</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;pos_x_R_std&quot;</span><span class="p">]:</span>
+        <span class="n">initial_conditions</span><span class="p">[</span><span class="s2">&quot;pos_x_R_std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos_x_R_std0</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;pos_x_R_std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos_x_R_std</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;pos_y_R_std&quot;</span><span class="p">]:</span>
+        <span class="n">initial_conditions</span><span class="p">[</span><span class="s2">&quot;pos_y_R_std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos_y_R_std0</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;pos_y_R_std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pos_y_R_std</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0&quot;</span><span class="p">]:</span>
+        <span class="n">initial_conditions</span><span class="p">[</span><span class="s2">&quot;m0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m0_0</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;m0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m0</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0&quot;</span><span class="p">]:</span>
+        <span class="n">initial_conditions</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sqrt_diag_V0_0</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sqrt_diag_V0</span>
+    <span class="n">answer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;initial_conditions&quot;</span><span class="p">:</span> <span class="n">initial_conditions</span><span class="p">,</span>
+              <span class="s2">&quot;estimates&quot;</span><span class="p">:</span> <span class="n">estimates</span><span class="p">,</span>
+              <span class="s2">&quot;log_like&quot;</span><span class="p">:</span> <span class="n">log_like</span><span class="p">,</span>
+              <span class="s2">&quot;elapsed_time&quot;</span><span class="p">:</span> <span class="n">elapsed_time</span><span class="p">,</span>
+              <span class="s2">&quot;termination_info&quot;</span><span class="p">:</span> <span class="n">termination_info</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">answer</span></div>
+
+
+<div class="viewcode-block" id="torch_adam_optimize_SS_tracking_diagV0"><a class="viewcode-back" href="../../ssm.html#ssm.learning.torch_adam_optimize_SS_tracking_diagV0">[docs]</a><span class="k">def</span> <span class="nf">torch_adam_optimize_SS_tracking_diagV0</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">sigma_a0</span><span class="p">,</span> <span class="n">Qe</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span>
+                                           <span class="n">sqrt_diag_R_0</span><span class="p">,</span> <span class="n">m0_0</span><span class="p">,</span> <span class="n">sqrt_diag_V0_0</span><span class="p">,</span>
+                                           <span class="n">max_iter</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span>
+                                           <span class="n">vars_to_estimate</span><span class="o">=</span><span class="p">{</span>
+                                               <span class="s2">&quot;sigma_a&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                                               <span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;m0&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                                               <span class="s2">&quot;V0&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+                                          <span class="p">):</span>
+
+    <span class="kn">import</span> <span class="nn">torch</span>
+    <span class="k">def</span> <span class="nf">log_likelihood_fn</span><span class="p">():</span>
+        <span class="n">V0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">sqrt_diag_V0</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">sqrt_diag_R</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="n">Qe</span> <span class="o">*</span> <span class="n">sigma_a</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">kf</span> <span class="o">=</span> <span class="n">inference</span><span class="o">.</span><span class="n">filterLDS_SS_withMissingValues_torch</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="n">Q</span><span class="p">,</span>
+                                                            <span class="n">m0</span><span class="o">=</span><span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="o">=</span><span class="n">V0</span><span class="p">,</span> <span class="n">Z</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span>
+                                                            <span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">)</span>
+        <span class="n">log_like</span> <span class="o">=</span> <span class="n">kf</span><span class="p">[</span><span class="s2">&quot;logLike&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">log_like</span>
+
+    <span class="n">optim_params</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="n">lr</span><span class="p">,</span> <span class="s2">&quot;eps&quot;</span><span class="p">:</span> <span class="n">eps</span><span class="p">}</span>
+    <span class="n">sigma_a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">([</span><span class="n">sigma_a0</span><span class="p">])</span>
+    <span class="n">sqrt_diag_R</span> <span class="o">=</span> <span class="n">sqrt_diag_R_0</span>
+    <span class="n">m0</span> <span class="o">=</span> <span class="n">m0_0</span>
+    <span class="n">sqrt_diag_V0</span> <span class="o">=</span> <span class="n">sqrt_diag_V0_0</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sigma_a</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_R&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sqrt_diag_R</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0&quot;</span><span class="p">]:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sqrt_diag_V0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No variable to estimate. Please set one element &quot;</span>
+                           <span class="s2">&quot;of vars_to_estimate to True&quot;</span><span class="p">)</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">optim_params</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="n">log_like</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">elapsed_time</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iter</span><span class="p">):</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+        <span class="n">curEval</span> <span class="o">=</span> <span class="o">-</span><span class="n">log_likelihood_fn</span><span class="p">()</span>
+        <span class="n">curEval</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+        <span class="n">log_like</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">curEval</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+        <span class="n">elapsed_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------------------------------------------------------&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;iteration: </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">max_iter</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;logLike: </span><span class="si">{</span><span class="o">-</span><span class="n">curEval</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sigma_a: &quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">sigma_a</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sqrt_diag_R: &quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">sqrt_diag_R</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;m0: &quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">m0</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sqrt_diag_V0: &quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">sqrt_diag_V0</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">estimates</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]:</span>
+        <span class="n">e_sigma_a</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">e_sigma_a</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_R&quot;</span><span class="p">]:</span>
+        <span class="n">e_sqrt_diag_R</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_R&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">e_sqrt_diag_R</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0&quot;</span><span class="p">]:</span>
+        <span class="n">e_m0</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;m0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">e_m0</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0&quot;</span><span class="p">]:</span>
+        <span class="n">e_sqrt_diag_V0</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;sqrt_diag_V0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">e_sqrt_diag_V0</span>
+    <span class="n">answer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;estimates&quot;</span><span class="p">:</span> <span class="n">estimates</span><span class="p">,</span>
+              <span class="s2">&quot;log_like&quot;</span><span class="p">:</span> <span class="n">log_like</span><span class="p">,</span>
+              <span class="s2">&quot;elapsed_time&quot;</span><span class="p">:</span> <span class="n">elapsed_time</span><span class="p">,</span>
+             <span class="p">}</span>
+    <span class="k">return</span> <span class="n">answer</span></div>
+
+
+<div class="viewcode-block" id="em_SS_tracking"><a class="viewcode-back" href="../../ssm.html#ssm.learning.em_SS_tracking">[docs]</a><span class="k">def</span> <span class="nf">em_SS_tracking</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">sigma_a0</span><span class="p">,</span> <span class="n">Qe</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R_0</span><span class="p">,</span> <span class="n">m0_0</span><span class="p">,</span> <span class="n">V0_0</span><span class="p">,</span>
+                   <span class="n">vars_to_estimate</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                                     <span class="s2">&quot;m0&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;V0&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+                   <span class="n">max_iter</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">tolerance_change</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">):</span>
+    <span class="n">sigma_a</span> <span class="o">=</span> <span class="n">sigma_a0</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">R_0</span>
+    <span class="n">m0</span> <span class="o">=</span> <span class="n">m0_0</span>
+    <span class="n">V0</span> <span class="o">=</span> <span class="n">V0_0</span>
+
+    <span class="n">Qe_inv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">Qe</span><span class="p">)</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">Qe</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">termination_info</span> <span class="o">=</span> <span class="s2">&quot;success: reached maximum number of iterations&quot;</span>
+    <span class="n">log_like</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">elapsed_time</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">for</span> <span class="nb">iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iter</span><span class="p">):</span>
+        <span class="c1"># E step</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="n">Qe</span> <span class="o">*</span> <span class="n">sigma_a</span><span class="o">**</span><span class="mi">2</span>
+        <span class="n">kf</span> <span class="o">=</span> <span class="n">inference</span><span class="o">.</span><span class="n">filterLDS_SS_withMissingValues_np</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span>
+                                                         <span class="n">Q</span><span class="o">=</span><span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="o">=</span><span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="o">=</span><span class="n">V0</span><span class="p">,</span>
+                                                         <span class="n">Z</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;LogLike[</span><span class="si">{:04d}</span><span class="s2">]=</span><span class="si">{:f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">iter</span><span class="p">,</span> <span class="n">kf</span><span class="p">[</span><span class="s2">&quot;logLike&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sigma_a=</span><span class="si">{:f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sigma_a</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;R:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">R</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;m0:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">m0</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;V0:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">V0</span><span class="p">)</span>
+        <span class="n">log_like</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kf</span><span class="p">[</span><span class="s2">&quot;logLike&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">log_like</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="ow">or</span> <span class="nb">iter</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">log_like</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">log_like</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">log_like</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">termination_info</span> <span class="o">=</span> <span class="s2">&quot;nan detected&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">termination_info</span> <span class="o">=</span> <span class="s2">&quot;log likelihood decreased&quot;</span>
+            <span class="c1"># begin backtrack</span>
+            <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]:</span>
+                <span class="n">sigma_a</span> <span class="o">=</span> <span class="n">sigma_a_prev</span>
+            <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">]:</span>
+                <span class="n">R</span> <span class="o">=</span> <span class="n">R_prev</span>
+            <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0&quot;</span><span class="p">]:</span>
+                <span class="n">m0</span> <span class="o">=</span> <span class="n">m0_prev</span>
+            <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;V0&quot;</span><span class="p">]:</span>
+                <span class="n">V0</span> <span class="o">=</span> <span class="n">V0_prev</span>
+            <span class="k">del</span> <span class="n">log_like</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># end backtrack</span>
+            <span class="k">break</span>
+        <span class="k">elif</span> <span class="nb">iter</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">log_like</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">log_like</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">tolerance_change</span><span class="p">:</span>
+            <span class="n">termination_info</span> <span class="o">=</span> <span class="s2">&quot;converged&quot;</span>
+            <span class="k">break</span>
+        <span class="n">elapsed_time</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+        <span class="n">ks</span> <span class="o">=</span> <span class="n">inference</span><span class="o">.</span><span class="n">smoothLDS_SS</span><span class="p">(</span><span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span> <span class="n">xnn</span><span class="o">=</span><span class="n">kf</span><span class="p">[</span><span class="s2">&quot;xnn&quot;</span><span class="p">],</span> <span class="n">Pnn</span><span class="o">=</span><span class="n">kf</span><span class="p">[</span><span class="s2">&quot;Pnn&quot;</span><span class="p">],</span>
+                                    <span class="n">xnn1</span><span class="o">=</span><span class="n">kf</span><span class="p">[</span><span class="s2">&quot;xnn1&quot;</span><span class="p">],</span> <span class="n">Pnn1</span><span class="o">=</span><span class="n">kf</span><span class="p">[</span><span class="s2">&quot;Pnn1&quot;</span><span class="p">],</span>
+                                    <span class="n">m0</span><span class="o">=</span><span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="o">=</span><span class="n">V0</span><span class="p">)</span>
+        <span class="c1"># M step</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]:</span>
+            <span class="n">sigma_a_prev</span> <span class="o">=</span> <span class="n">sigma_a</span>
+            <span class="n">S11</span><span class="p">,</span> <span class="n">S10</span><span class="p">,</span> <span class="n">S00</span> <span class="o">=</span> <span class="n">posteriorCorrelationMatrices</span><span class="p">(</span><span class="n">Z</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span> <span class="n">KN</span><span class="o">=</span><span class="n">kf</span><span class="p">[</span><span class="s2">&quot;KN&quot;</span><span class="p">],</span>
+                                                         <span class="n">Pnn</span><span class="o">=</span><span class="n">kf</span><span class="p">[</span><span class="s2">&quot;Pnn&quot;</span><span class="p">],</span> <span class="n">xnN</span><span class="o">=</span><span class="n">ks</span><span class="p">[</span><span class="s2">&quot;xnN&quot;</span><span class="p">],</span>
+                                                         <span class="n">PnN</span><span class="o">=</span><span class="n">ks</span><span class="p">[</span><span class="s2">&quot;PnN&quot;</span><span class="p">],</span> <span class="n">x0N</span><span class="o">=</span><span class="n">ks</span><span class="p">[</span><span class="s2">&quot;x0N&quot;</span><span class="p">],</span>
+                                                         <span class="n">V0N</span><span class="o">=</span><span class="n">ks</span><span class="p">[</span><span class="s2">&quot;V0N&quot;</span><span class="p">],</span> <span class="n">Jn</span><span class="o">=</span><span class="n">ks</span><span class="p">[</span><span class="s2">&quot;Jn&quot;</span><span class="p">],</span>
+                                                         <span class="n">J0</span><span class="o">=</span><span class="n">ks</span><span class="p">[</span><span class="s2">&quot;J0&quot;</span><span class="p">])</span>
+            <span class="c1"># sigma_a</span>
+            <span class="n">W</span> <span class="o">=</span> <span class="n">S11</span> <span class="o">-</span> <span class="n">S10</span> <span class="o">@</span> <span class="n">B</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="n">B</span> <span class="o">@</span> <span class="n">S10</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">B</span> <span class="o">@</span> <span class="n">S00</span> <span class="o">@</span> <span class="n">B</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">U</span> <span class="o">=</span> <span class="n">W</span> <span class="o">@</span> <span class="n">Qe_inv</span>
+            <span class="n">K</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">U</span><span class="p">)</span>
+            <span class="n">sigma_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">K</span><span class="o">/</span><span class="p">(</span><span class="n">N</span><span class="o">*</span><span class="n">M</span><span class="p">))</span>
+        <span class="c1"># R</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">]:</span>
+            <span class="n">R_prev</span> <span class="o">=</span> <span class="n">R</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">Z</span> <span class="o">@</span> <span class="n">ks</span><span class="p">[</span><span class="s2">&quot;xnN&quot;</span><span class="p">][:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+            <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="n">Z</span> <span class="o">@</span> <span class="n">ks</span><span class="p">[</span><span class="s2">&quot;PnN&quot;</span><span class="p">][:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">@</span> <span class="n">Z</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+                <span class="n">u</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">Z</span> <span class="o">@</span> <span class="n">ks</span><span class="p">[</span><span class="s2">&quot;xnN&quot;</span><span class="p">][:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+                <span class="n">R</span> <span class="o">=</span> <span class="n">R</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="n">Z</span> <span class="o">@</span> <span class="n">ks</span><span class="p">[</span><span class="s2">&quot;PnN&quot;</span><span class="p">][:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">@</span> <span class="n">Z</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">R</span> <span class="o">=</span> <span class="n">R</span><span class="o">/</span><span class="n">N</span>
+
+        <span class="c1"># m0, V0</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0&quot;</span><span class="p">]:</span>
+            <span class="n">m0_prev</span> <span class="o">=</span> <span class="n">m0</span>
+            <span class="n">m0</span> <span class="o">=</span> <span class="n">ks</span><span class="p">[</span><span class="s2">&quot;x0N&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;V0&quot;</span><span class="p">]:</span>
+            <span class="n">V0_prev</span> <span class="o">=</span> <span class="n">V0</span>
+            <span class="n">V0</span> <span class="o">=</span> <span class="n">ks</span><span class="p">[</span><span class="s2">&quot;V0N&quot;</span><span class="p">]</span>
+    <span class="n">estimates</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]:</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;sigma_a&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma_a</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">]:</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">R</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0&quot;</span><span class="p">]:</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;m0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">m0</span>
+    <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;V0&quot;</span><span class="p">]:</span>
+        <span class="n">estimates</span><span class="p">[</span><span class="s2">&quot;V0&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">V0</span>
+
+    <span class="n">optim_res</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;estimates&quot;</span><span class="p">:</span> <span class="n">estimates</span><span class="p">,</span>
+                 <span class="s2">&quot;log_like&quot;</span><span class="p">:</span> <span class="n">log_like</span><span class="p">,</span>
+                 <span class="s2">&quot;elapsed_time&quot;</span><span class="p">:</span> <span class="n">elapsed_time</span><span class="p">,</span>
+                 <span class="s2">&quot;termination_info&quot;</span><span class="p">:</span> <span class="n">termination_info</span><span class="p">,</span>
+                <span class="p">}</span>
+    <span class="k">return</span> <span class="n">optim_res</span></div>
+
+
+<div class="viewcode-block" id="em_SS_LDS"><a class="viewcode-back" href="../../ssm.html#ssm.learning.em_SS_LDS">[docs]</a><span class="k">def</span> <span class="nf">em_SS_LDS</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">B0</span><span class="p">,</span> <span class="n">Q0</span><span class="p">,</span> <span class="n">Z0</span><span class="p">,</span> <span class="n">R0</span><span class="p">,</span> <span class="n">m0_0</span><span class="p">,</span> <span class="n">V0_0</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
+              <span class="n">vars_to_estimate</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">m0</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">V0</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">Z</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                    <span class="n">R</span><span class="o">=</span><span class="kc">True</span><span class="p">)):</span>
+    <span class="n">B</span>  <span class="o">=</span> <span class="n">B0</span>
+    <span class="n">Q</span>  <span class="o">=</span> <span class="n">Q0</span>
+    <span class="n">Z</span>  <span class="o">=</span> <span class="n">Z0</span>
+    <span class="n">R</span>  <span class="o">=</span> <span class="n">R0</span>
+    <span class="n">m0</span> <span class="o">=</span> <span class="n">m0_0</span>
+    <span class="n">V0</span> <span class="o">=</span> <span class="n">V0_0</span>
+
+    <span class="n">M</span> <span class="o">=</span> <span class="n">B0</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">log_like</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">max_iter</span><span class="p">)</span>
+    <span class="n">prev_log_like</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="k">for</span> <span class="nb">iter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iter</span><span class="p">):</span>
+        <span class="n">kf</span> <span class="o">=</span> <span class="n">inference</span><span class="o">.</span><span class="n">filterLDS_SS_withMissingValues_np</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span>
+                                                         <span class="n">Q</span><span class="o">=</span><span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="o">=</span><span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="o">=</span><span class="n">V0</span><span class="p">,</span>
+                                                         <span class="n">Z</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;LogLike[</span><span class="si">{:04d}</span><span class="s2">]=</span><span class="si">{:f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">iter</span><span class="p">,</span> <span class="n">kf</span><span class="p">[</span><span class="s2">&quot;logLike&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()))</span>
+        <span class="n">log_like</span><span class="p">[</span><span class="nb">iter</span><span class="p">]</span> <span class="o">=</span> <span class="n">kf</span><span class="p">[</span><span class="s2">&quot;logLike&quot;</span><span class="p">]</span>
+        <span class="k">assert</span><span class="p">(</span><span class="n">kf</span><span class="p">[</span><span class="s2">&quot;logLike&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">prev_log_like</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">kf</span><span class="p">[</span><span class="s2">&quot;logLike&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">prev_log_like</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">prev_log_like</span> <span class="o">=</span> <span class="n">kf</span><span class="p">[</span><span class="s2">&quot;logLike&quot;</span><span class="p">]</span>
+        <span class="n">ks</span> <span class="o">=</span> <span class="n">inference</span><span class="o">.</span><span class="n">smoothLDS_SS</span><span class="p">(</span><span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span> <span class="n">xnn</span><span class="o">=</span><span class="n">kf</span><span class="p">[</span><span class="s2">&quot;xnn&quot;</span><span class="p">],</span> <span class="n">Pnn</span><span class="o">=</span><span class="n">kf</span><span class="p">[</span><span class="s2">&quot;Pnn&quot;</span><span class="p">],</span>
+                                    <span class="n">xnn1</span><span class="o">=</span><span class="n">kf</span><span class="p">[</span><span class="s2">&quot;xnn1&quot;</span><span class="p">],</span> <span class="n">Pnn1</span><span class="o">=</span><span class="n">kf</span><span class="p">[</span><span class="s2">&quot;Pnn1&quot;</span><span class="p">],</span>
+                                    <span class="n">m0</span><span class="o">=</span><span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="o">=</span><span class="n">V0</span><span class="p">)</span>
+
+        <span class="n">S11</span><span class="p">,</span> <span class="n">S10</span><span class="p">,</span> <span class="n">S00</span> <span class="o">=</span> <span class="n">posteriorCorrelationMatrices</span><span class="p">(</span><span class="n">Z</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span> <span class="n">KN</span><span class="o">=</span><span class="n">kf</span><span class="p">[</span><span class="s2">&quot;KN&quot;</span><span class="p">],</span>
+                                                     <span class="n">Pnn</span><span class="o">=</span><span class="n">kf</span><span class="p">[</span><span class="s2">&quot;Pnn&quot;</span><span class="p">],</span> <span class="n">xnN</span><span class="o">=</span><span class="n">ks</span><span class="p">[</span><span class="s2">&quot;xnN&quot;</span><span class="p">],</span>
+                                                     <span class="n">PnN</span><span class="o">=</span><span class="n">ks</span><span class="p">[</span><span class="s2">&quot;PnN&quot;</span><span class="p">],</span> <span class="n">x0N</span><span class="o">=</span><span class="n">ks</span><span class="p">[</span><span class="s2">&quot;x0N&quot;</span><span class="p">],</span>
+                                                     <span class="n">V0N</span><span class="o">=</span><span class="n">ks</span><span class="p">[</span><span class="s2">&quot;V0N&quot;</span><span class="p">],</span> <span class="n">Jn</span><span class="o">=</span><span class="n">ks</span><span class="p">[</span><span class="s2">&quot;Jn&quot;</span><span class="p">],</span>
+                                                     <span class="n">J0</span><span class="o">=</span><span class="n">ks</span><span class="p">[</span><span class="s2">&quot;J0&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;Z&quot;</span><span class="p">]:</span>
+            <span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">ks</span><span class="p">[</span><span class="s2">&quot;xnN&quot;</span><span class="p">][:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+                <span class="n">Z</span> <span class="o">=</span> <span class="n">Z</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">ks</span><span class="p">[</span><span class="s2">&quot;xnN&quot;</span><span class="p">][:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">])</span>
+            <span class="n">Z</span> <span class="o">=</span> <span class="n">Z</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">S11</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">]:</span>
+            <span class="n">B</span> <span class="o">=</span> <span class="n">S10</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">S00</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">]:</span>
+            <span class="n">Q</span> <span class="o">=</span> <span class="p">(</span><span class="n">S11</span> <span class="o">-</span> <span class="n">S10</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">S00</span><span class="p">)</span> <span class="o">@</span> <span class="n">S10</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">/</span><span class="n">N</span>
+            <span class="n">Q</span> <span class="o">=</span> <span class="p">(</span><span class="n">Q</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">Q</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+
+        <span class="c1"># Now that Z is estimated, lets estimate R, if requested</span>
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">]:</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">Z</span> <span class="o">@</span> <span class="n">ks</span><span class="p">[</span><span class="s2">&quot;xnN&quot;</span><span class="p">][:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+            <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="n">Z</span> <span class="o">@</span> <span class="n">ks</span><span class="p">[</span><span class="s2">&quot;PnN&quot;</span><span class="p">][:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">@</span> <span class="n">Z</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+                <span class="n">u</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">Z</span> <span class="o">@</span> <span class="n">ks</span><span class="p">[</span><span class="s2">&quot;xnN&quot;</span><span class="p">][:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+                <span class="n">R</span> <span class="o">=</span> <span class="n">R</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="n">Z</span> <span class="o">@</span> <span class="n">ks</span><span class="p">[</span><span class="s2">&quot;PnN&quot;</span><span class="p">][:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">@</span> <span class="n">Z</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">R</span> <span class="o">=</span> <span class="n">R</span><span class="o">/</span><span class="n">N</span>
+
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;m0&quot;</span><span class="p">]:</span>
+            <span class="n">m0</span> <span class="o">=</span> <span class="n">ks</span><span class="p">[</span><span class="s2">&quot;x0N&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">vars_to_estimate</span><span class="p">[</span><span class="s2">&quot;V0&quot;</span><span class="p">]:</span>
+            <span class="n">V0</span> <span class="o">=</span> <span class="n">ks</span><span class="p">[</span><span class="s2">&quot;V0N&quot;</span><span class="p">]</span>
+
+    <span class="n">answer</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="n">Q</span><span class="p">,</span> <span class="n">Z</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="n">R</span><span class="p">,</span> <span class="n">m0</span><span class="o">=</span><span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="o">=</span><span class="n">V0</span><span class="p">,</span> <span class="n">log_like</span><span class="o">=</span><span class="n">log_like</span><span class="p">[:(</span><span class="nb">iter</span><span class="o">+</span><span class="mi">1</span><span class="p">)],</span>
+                  <span class="n">niter</span><span class="o">=</span><span class="nb">iter</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">answer</span></div>
+
+<div class="viewcode-block" id="posteriorCorrelationMatrices"><a class="viewcode-back" href="../../ssm.html#ssm.learning.posteriorCorrelationMatrices">[docs]</a><span class="k">def</span> <span class="nf">posteriorCorrelationMatrices</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">KN</span><span class="p">,</span> <span class="n">Pnn</span><span class="p">,</span> <span class="n">xnN</span><span class="p">,</span> <span class="n">PnN</span><span class="p">,</span> <span class="n">x0N</span><span class="p">,</span> <span class="n">V0N</span><span class="p">,</span> <span class="n">Jn</span><span class="p">,</span> <span class="n">J0</span><span class="p">):</span>
+    <span class="c1"># We want to first estimate Z and then R, because R depends on Z</span>
+    <span class="n">Pnn1N</span> <span class="o">=</span> <span class="n">lag1CovSmootherLDS_SS</span><span class="p">(</span><span class="n">Z</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">KN</span><span class="o">=</span><span class="n">KN</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span> <span class="n">Pnn</span><span class="o">=</span><span class="n">Pnn</span><span class="p">,</span> <span class="n">Jn</span><span class="o">=</span><span class="n">Jn</span><span class="p">,</span> <span class="n">J0</span><span class="o">=</span><span class="n">J0</span><span class="p">)</span>
+    <span class="n">S11</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">xnN</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">xnN</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="n">PnN</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">S10</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">xnN</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">],</span> <span class="n">x0N</span><span class="p">)</span> <span class="o">+</span> <span class="n">Pnn1N</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">S00</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">x0N</span><span class="p">,</span> <span class="n">x0N</span><span class="p">)</span> <span class="o">+</span> <span class="n">V0N</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">xnN</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+        <span class="n">S11</span> <span class="o">=</span> <span class="n">S11</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">xnN</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">xnN</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="n">PnN</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span>
+        <span class="n">S10</span> <span class="o">=</span> <span class="n">S10</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">xnN</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">],</span> <span class="n">xnN</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">Pnn1N</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span>
+        <span class="n">S00</span> <span class="o">=</span> <span class="n">S00</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">xnN</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">xnN</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="n">PnN</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">S11</span><span class="p">,</span> <span class="n">S10</span><span class="p">,</span> <span class="n">S00</span></div>
+
+<div class="viewcode-block" id="lag1CovSmootherLDS_SS"><a class="viewcode-back" href="../../ssm.html#ssm.learning.lag1CovSmootherLDS_SS">[docs]</a><span class="k">def</span> <span class="nf">lag1CovSmootherLDS_SS</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">KN</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Pnn</span><span class="p">,</span> <span class="n">Jn</span><span class="p">,</span> <span class="n">J0</span><span class="p">):</span>
+    <span class="c1">#SS16, Property 6.3</span>
+    <span class="n">M</span> <span class="o">=</span> <span class="n">KN</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">Pnn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">Pnn1N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">))</span>
+    <span class="n">eye</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
+    <span class="n">Pnn1N</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">eye</span> <span class="o">-</span> <span class="n">KN</span> <span class="o">@</span> <span class="n">Z</span><span class="p">)</span> <span class="o">@</span> <span class="n">B</span> <span class="o">@</span> <span class="n">Pnn</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">N</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">Pnn1N</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pnn</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">@</span> <span class="n">Jn</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> \
+                           <span class="n">Jn</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">@</span> \
+                           <span class="p">(</span><span class="n">Pnn1N</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="n">B</span> <span class="o">@</span> <span class="n">Pnn</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">@</span> <span class="n">Jn</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">Pnn1N</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pnn</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">@</span> <span class="n">J0</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">Jn</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">@</span> <span class="p">(</span><span class="n">Pnn1N</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">B</span> <span class="o">@</span> <span class="n">Pnn</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">@</span> <span class="n">J0</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">return</span> <span class="n">Pnn1N</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Joaquin Rapela.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

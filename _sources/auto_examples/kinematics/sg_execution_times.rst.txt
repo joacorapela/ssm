@@ -1,0 +1,25 @@
+
+:orphan:
+
+.. _sphx_glr_auto_examples_kinematics_sg_execution_times:
+
+
+Computation times
+=================
+**05:42.250** total execution time for **auto_examples_kinematics** files:
+
++----------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_examples_kinematics_plotFilterFWGMouseTrajectoryManualVsLearnedParams.py` (``plotFilterFWGMouseTrajectoryManualVsLearnedParams.py``) | 03:34.691 | 0.0 MB |
++----------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_examples_kinematics_plotEMvsGAcomparisonSimulated.py` (``plotEMvsGAcomparisonSimulated.py``)                                         | 01:52.004 | 0.0 MB |
++----------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_examples_kinematics_plotEMvsGAcomparisonForagingMouse.py` (``plotEMvsGAcomparisonForagingMouse.py``)                                 | 00:09.448 | 0.0 MB |
++----------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_examples_kinematics_plotSimulatedTrajectoryDWPA.py` (``plotSimulatedTrajectoryDWPA.py``)                                             | 00:02.911 | 0.0 MB |
++----------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_examples_kinematics_plotOnlineFilterFWGMouseTrajectory.py` (``plotOnlineFilterFWGMouseTrajectory.py``)                               | 00:02.903 | 0.0 MB |
++----------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_examples_kinematics_plotBatchSmoothSimulatedTrajectoryDWPA.py` (``plotBatchSmoothSimulatedTrajectoryDWPA.py``)                       | 00:00.161 | 0.0 MB |
++----------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_examples_kinematics_plotBatchFilterSimulatedTrajectoryDWPA.py` (``plotBatchFilterSimulatedTrajectoryDWPA.py``)                       | 00:00.132 | 0.0 MB |
++----------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+--------+

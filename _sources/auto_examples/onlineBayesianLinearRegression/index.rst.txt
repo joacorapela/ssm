@@ -1,0 +1,59 @@
+
+
+.. _sphx_glr_auto_examples_onlineBayesianLinearRegression:
+
+Online Bayesian linear regression
+---------------------------------
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below uses an online algorithm to estimate the linear receptive field of a simple cell...">
+
+.. only:: html
+
+  .. image:: /auto_examples/onlineBayesianLinearRegression/images/thumb/sphx_glr_plotOnlineBayesianLinearRegressionSimpleCell_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_onlineBayesianLinearRegression_plotOnlineBayesianLinearRegressionSimpleCell.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Anesthetized cat V1 simple cell</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below uses an online algorithm to estimate the posterior of the weighs of a linear reg...">
+
+.. only:: html
+
+  .. image:: /auto_examples/onlineBayesianLinearRegression/images/thumb/sphx_glr_plotOnlineBayesianLinearRegressionSimulatedData_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_onlineBayesianLinearRegression_plotOnlineBayesianLinearRegressionSimulatedData.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Simulated data</div>
+    </div>
+
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/onlineBayesianLinearRegression/plotOnlineBayesianLinearRegressionSimpleCell
+   /auto_examples/onlineBayesianLinearRegression/plotOnlineBayesianLinearRegressionSimulatedData
+

@@ -1,0 +1,274 @@
+:orphan:
+
+Demo scripts
+============
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+
+.. raw:: html
+
+    </div>
+
+Kinematics Inference
+--------------------
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below samples from a Discrete Wiener Process Acceleration (DWPA) model.">
+
+.. only:: html
+
+  .. image:: /auto_examples/kinematics/images/thumb/sphx_glr_plotSimulatedTrajectoryDWPA_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_kinematics_plotSimulatedTrajectoryDWPA.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Sampling from a Discrete Wiener Process Acceleration Model</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below performs online Kalman filtering of a trajectory of the mouse shown on the left ...">
+
+.. only:: html
+
+  .. image:: /auto_examples/kinematics/images/thumb/sphx_glr_plotOnlineFilterFWGMouseTrajectory_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_kinematics_plotOnlineFilterFWGMouseTrajectory.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Online filtering of a foraging mouse trajectory</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below performs online Kalman filtering of a simulated mouse trajectory.">
+
+.. only:: html
+
+  .. image:: /auto_examples/kinematics/images/thumb/sphx_glr_plotBatchFilterSimulatedTrajectoryDWPA_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_kinematics_plotBatchFilterSimulatedTrajectoryDWPA.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Offline filtering of a simulated mouse trajectory</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below performs online Kalman smoothing of a simulated mouse trajectory.">
+
+.. only:: html
+
+  .. image:: /auto_examples/kinematics/images/thumb/sphx_glr_plotBatchSmoothSimulatedTrajectoryDWPA_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_kinematics_plotBatchSmoothSimulatedTrajectoryDWPA.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Offline smoothing of a simulated mouse trajectory</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below compares the expectation maximization (EM) and gradient ascent algorithm for tra...">
+
+.. only:: html
+
+  .. image:: /auto_examples/kinematics/images/thumb/sphx_glr_plotEMvsGAcomparisonSimulated_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_kinematics_plotEMvsGAcomparisonSimulated.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Comparison between EM and gradient ascent for tracking a simulated mouse</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below compares the expectation maximization (EM) and gradient ascent algorithm for tra...">
+
+.. only:: html
+
+  .. image:: /auto_examples/kinematics/images/thumb/sphx_glr_plotEMvsGAcomparisonForagingMouse_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_kinematics_plotEMvsGAcomparisonForagingMouse.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Comparison between EM and gradient ascent for tracking a foraging mouse</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below performs Kalman filtering and smoothing of a trajectory of the mouse shown on th...">
+
+.. only:: html
+
+  .. image:: /auto_examples/kinematics/images/thumb/sphx_glr_plotFilterFWGMouseTrajectoryManualVsLearnedParams_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_kinematics_plotFilterFWGMouseTrajectoryManualVsLearnedParams.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Filtering of a foraging mouse trajectory with manual vs learned parameters</div>
+    </div>
+
+
+.. raw:: html
+
+    </div>
+
+Learning and Inference for Neural Latents
+-----------------------------------------
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below learns and infers latents with simple simulated data.">
+
+.. only:: html
+
+  .. image:: /auto_examples/neuralLatents/images/thumb/sphx_glr_plot_simulations_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_neuralLatents_plot_simulations.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Learning and inference of latents with simple simulated data</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below learns and infers latents with MC_MAZE_SMALL data.">
+
+.. only:: html
+
+  .. image:: /auto_examples/neuralLatents/images/thumb/sphx_glr_plot_MC_MAZE_SMALL_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_neuralLatents_plot_MC_MAZE_SMALL.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Learning and inference of latents with MC_MAZE_SMALL data</div>
+    </div>
+
+
+.. raw:: html
+
+    </div>
+
+Online Bayesian linear regression
+---------------------------------
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below uses an online algorithm to estimate the linear receptive field of a simple cell...">
+
+.. only:: html
+
+  .. image:: /auto_examples/onlineBayesianLinearRegression/images/thumb/sphx_glr_plotOnlineBayesianLinearRegressionSimpleCell_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_onlineBayesianLinearRegression_plotOnlineBayesianLinearRegressionSimpleCell.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Anesthetized cat V1 simple cell</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below uses an online algorithm to estimate the posterior of the weighs of a linear reg...">
+
+.. only:: html
+
+  .. image:: /auto_examples/onlineBayesianLinearRegression/images/thumb/sphx_glr_plotOnlineBayesianLinearRegressionSimulatedData_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_auto_examples_onlineBayesianLinearRegression_plotOnlineBayesianLinearRegressionSimulatedData.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Simulated data</div>
+    </div>
+
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+   :includehidden:
+
+
+   /auto_examples/kinematics/index.rst
+   /auto_examples/neuralLatents/index.rst
+   /auto_examples/onlineBayesianLinearRegression/index.rst
+
+
+.. only:: html
+
+  .. container:: sphx-glr-footer sphx-glr-footer-gallery
+
+    .. container:: sphx-glr-download sphx-glr-download-python
+
+      :download:`Download all examples in Python source code: auto_examples_python.zip </auto_examples/auto_examples_python.zip>`
+
+    .. container:: sphx-glr-download sphx-glr-download-jupyter
+
+      :download:`Download all examples in Jupyter notebooks: auto_examples_jupyter.zip </auto_examples/auto_examples_jupyter.zip>`
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_
