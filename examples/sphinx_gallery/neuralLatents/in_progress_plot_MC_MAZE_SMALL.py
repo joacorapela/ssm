@@ -47,7 +47,7 @@ events_colors_spikes = ["white", "white", "white", "white", "white"]
 events_colors_latents = ["black", "black", "black", "black", "black"]
 cb_alpha = 0.3
 from_time = 100.0
-to_time = 130.0
+to_time = 150.0
 
 # model
 n_latents = 10
@@ -191,20 +191,14 @@ smoothing_res = ssm.inference.smoothLDS_SS(
 # Plot smoothed states
 # ^^^^^^^^^^^^^^^^^^^^
 
-o_means_to_plot, o_covs_to_plot = ssm.neural_latents.utils.ortogonalizeMeansAndCovs(
+fig = ssm.neural_latents.plotting.getPlotLatents(
     means=smoothing_res["xnN"][:, :, to_plot_slice],
-    covs=smoothing_res["PnN"][:, :, to_plot_slice], Z=optim_res["Z"])
-
-fig = ssm.neural_latents.plotting.plot_latents(
-    means=o_means_to_plot,
-    covs=o_covs_to_plot,
+    covs=smoothing_res["PnN"][:, :, to_plot_slice],
     bin_centers=bin_centers_to_plot,
-    trials_df=trials_df,
-    events_names=events_names,
-    events_linetypes=events_linetypes,
-    events_colors=events_colors_latents,
-    cb_alpha=cb_alpha,
+    Z=optim_res["Z"],
+    orthonormalize=True,
     legend_pattern="smoothing_{:d}",
+    cb_alpha=cb_alpha,
 )
 
-fig
+fig.show()
