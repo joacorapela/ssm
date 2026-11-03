@@ -1,9 +1,10 @@
 """
-Learning and inference of latents and of a hidden Markov model for replay characterisation in the striatum
-==========================================================================================================
+Learning and inference of latents from striatal recordings while a mouse performed a learned poking sequence
+============================================================================================================
 
-The code below learns and infers latents and a hidden Markov models for the
-characterisation of replay in the striatum
+The code below learns and infers latents from strialt recording while a mouse
+performed a learned poking sequence. Recordings from [Thompson et al.,
+2026](https://www.nature.com/articles/s41593-026-02362-5).
 
 """
 
@@ -17,8 +18,6 @@ import ssm.learning
 import ssm.plotting
 import ssm.neural_latents.utils
 import ssm.neural_latents.plotting
-
-import plotUtils
 
 #%%
 # Define variables
@@ -39,8 +38,7 @@ n_latents = 5
 n_clusters = clusters_indices.size
 EM_start_time_sec = 8400.0
 EM_duration_sec = 300.0
-# EM_max_iter = 5000
-EM_max_iter = 3
+EM_max_iter = 5000
 EM_tol = 1e-1
 min_spike_rate_var = 0.01 # minimal spike rate variance
 EM_constraint_diag_R = True
@@ -171,6 +169,7 @@ filtering_valid_bins_mask = np.logical_and(
     bins_centers < filtering_end_time_sec
 )
 filtering_data = filtering_data[valid_bins_mask, :]
+filtering_bins_centers = bins_centers[filtering_valid_bins_mask]
 
 filtering_res = ssm.inference.filterLDS_SS_withMissingValues_np(
     y=filtering_data.T, u=optim_res["u"], B=optim_res["B"], Q=optim_res["Q"],
@@ -181,9 +180,31 @@ filtering_res = ssm.inference.filterLDS_SS_withMissingValues_np(
 # Plot filtered states
 # ^^^^^^^^^^^^^^^^^^^^
 
+# define auxiliary function
+def build_events_df(start_time_sec, end_time_sec, transitions_data,
+                    ports_linetypes, ports_colors,
+                    start_poke_in_time_col_name="P1_IN_Ephys_TS",
+                    start_port_col_name="Start_Port"):
+    mask = np.logical_and(
+        start_time_sec<=transitions_data[start_poke_in_time_col_name],
+        transitions_data[start_poke_in_time_col_name]<end_time_sec
+    )
+    subset_transitions_data = transitions_data[mask]
+    event_time = subset_transitions_data[start_poke_in_time_col_name]
+    ports_names = subset_transitions_data[start_port_col_name]
+    event_line_type = [ports_linetypes[port_name]
+                       for port_name in ports_names]
+    event_color = [ports_colors[port_name]
+                   for port_name in ports_names]
+    answer = pd.DataFrame(dict(event_time=event_time,
+                               event_line_type=event_line_type,
+                               event_color=event_color))
+    return answer
+
+
 transitions_data = pd.read_csv(transition_data_filename)
 
-events_df = plotUtils.build_events_df(
+events_df = build_events_df(
     start_time_sec=filtering_start_time_sec,
     end_time_sec=filtering_end_time_sec,
     transitions_data=transitions_data,
@@ -191,10 +212,10 @@ events_df = plotUtils.build_events_df(
     ports_colors=ports_colors)
 
 plotting_end_time_sec = plotting_start_time_sec + plotting_duration_sec
-plotting_first_index = np.where(bins_centers >= plotting_start_time_sec)[0][0]
-plotting_last_index = np.where(bins_centers <= plotting_end_time_sec)[0][-1]
+plotting_first_index = np.where(filtering_bins_centers >= plotting_start_time_sec)[0][0]
+plotting_last_index = np.where(filtering_bins_centers <= plotting_end_time_sec)[0][-1]
 plotting_slice = slice(plotting_first_index, plotting_last_index)
-plotting_bins_centers = bins_centers[plotting_slice]
+plotting_bins_centers = filtering_bins_centers[plotting_slice]
 plotting_means = filtering_res["xnn"][:,:,plotting_slice]
 plotting_covs = filtering_res["Pnn"][:,:,plotting_slice]
 
@@ -209,6 +230,6 @@ ssm.plotting.add_events_vlines(fig=fig, events_df=events_df)
 
 nro_samples = len(bins_centers)
 title = ('Log-Likelihood per sample: '
-         f'{filter_res["log_like"].squeeze() / nro_samples:.2E}')
+         f'{filtering_res["log_like"].squeeze() / nro_samples:.2E}')
 fig.update_layout(title=title)
 fig
