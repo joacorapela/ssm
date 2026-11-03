@@ -1,22 +1,25 @@
+
+
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ssm.inference &mdash; Linear Dynamical Systems  documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=c83e6b79" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -77,12 +80,14 @@
              
   <h1>Source code for ssm.inference</h1><div class="highlight"><pre>
 <span></span>
-<span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 
-<div class="viewcode-block" id="OnlineKalmanFilter"><a class="viewcode-back" href="../../ssm.html#ssm.inference.OnlineKalmanFilter">[docs]</a><span class="k">class</span> <span class="nc">OnlineKalmanFilter</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="OnlineKalmanFilter">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.OnlineKalmanFilter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OnlineKalmanFilter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Class implementing the online Kalman filter algorithm for the following</span>
 <span class="sd">    linear dynamical system:</span>
 
@@ -116,8 +121,8 @@
 
 <span class="sd">    Note 2:</span>
 <span class="sd">        observations :math:`y_n` should be sampled uniformly.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+<span class="sd">    """</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_B</span> <span class="o">=</span> <span class="n">B</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_Q</span> <span class="o">=</span> <span class="n">Q</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_m0</span> <span class="o">=</span> <span class="n">m0</span>
@@ -131,23 +136,28 @@
         <span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">m0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">M</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OnlineKalmanFilter.predict"><a class="viewcode-back" href="../../ssm.html#ssm.inference.OnlineKalmanFilter.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Predicts the next state.</span>
+<div class="viewcode-block" id="OnlineKalmanFilter.predict">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.OnlineKalmanFilter.predict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Predicts the next state.</span>
 
 <span class="sd">        :return: (state, covariance): tuple containing the predicted state vector and covariance matrix.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">P</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">P</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">Q</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">P</span></div>
 
-<div class="viewcode-block" id="OnlineKalmanFilter.update"><a class="viewcode-back" href="../../ssm.html#ssm.inference.OnlineKalmanFilter.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates the current state and covariance.</span>
+
+<div class="viewcode-block" id="OnlineKalmanFilter.update">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.OnlineKalmanFilter.update">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Updates the current state and covariance.</span>
 
 <span class="sd">        :param y: observation :math:`\\in\\Re^M`</span>
 <span class="sd">        :return: (state, covariance): tuple containing the updated state vector and covariance matrix.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
@@ -161,73 +171,77 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">P</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">I</span> <span class="o">-</span> <span class="n">K</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">Z</span><span class="p">)</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">P</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">P</span></div>
 
+
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">B</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">B</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_B</span>
 
     <span class="nd">@B</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">B</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">B</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_B</span> <span class="o">=</span> <span class="n">B</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">Q</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Q</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Q</span>
 
     <span class="nd">@Q</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">Q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Q</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Q</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Q</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_Q</span> <span class="o">=</span> <span class="n">Q</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">m0</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">m0</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_m0</span>
 
     <span class="nd">@m0</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">m0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m0</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">m0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m0</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_m0</span> <span class="o">=</span> <span class="n">m0</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">V0</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">V0</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_V0</span>
 
     <span class="nd">@V0</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">V0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">V0</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">V0</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">V0</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_V0</span> <span class="o">=</span> <span class="n">V0</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">Z</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Z</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Z</span>
 
     <span class="nd">@Z</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">Z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Z</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">Z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Z</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_Z</span> <span class="o">=</span> <span class="n">Z</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">R</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">R</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_R</span>
 
     <span class="nd">@R</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">R</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">R</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_R</span> <span class="o">=</span> <span class="n">R</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x</span>
 
     <span class="nd">@x</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_x</span> <span class="o">=</span> <span class="n">x</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">P</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">P</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_P</span>
 
     <span class="nd">@P</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">P</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">P</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_P</span> <span class="o">=</span> <span class="n">P</span></div>
 
 
-<div class="viewcode-block" id="TimeVaryingOnlineKalmanFilter"><a class="viewcode-back" href="../../ssm.html#ssm.inference.TimeVaryingOnlineKalmanFilter">[docs]</a><span class="k">class</span> <span class="nc">TimeVaryingOnlineKalmanFilter</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TimeVaryingOnlineKalmanFilter">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.TimeVaryingOnlineKalmanFilter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TimeVaryingOnlineKalmanFilter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Class implementing the time-varying and online Kalman filter algorithm for the following</span>
 <span class="sd">    linear dynamical system:</span>
 
@@ -261,24 +275,29 @@
 
 <span class="sd">    Note 2:</span>
 <span class="sd">        observations :math:`y_n` should be sampled uniformly.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-<div class="viewcode-block" id="TimeVaryingOnlineKalmanFilter.predict"><a class="viewcode-back" href="../../ssm.html#ssm.inference.TimeVaryingOnlineKalmanFilter.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Predicts the next state.</span>
+<span class="sd">    """</span>
+<div class="viewcode-block" id="TimeVaryingOnlineKalmanFilter.predict">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.TimeVaryingOnlineKalmanFilter.predict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Predicts the next state.</span>
 
 <span class="sd">        :return: (state, covariance): tuple containing the predicted state vector and covariance matrix.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">B</span> <span class="o">@</span> <span class="n">x</span>
         <span class="n">P</span> <span class="o">=</span> <span class="n">B</span> <span class="o">@</span> <span class="n">P</span> <span class="o">@</span> <span class="n">B</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">Q</span>
         <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">P</span></div>
 
-<div class="viewcode-block" id="TimeVaryingOnlineKalmanFilter.update"><a class="viewcode-back" href="../../ssm.html#ssm.inference.TimeVaryingOnlineKalmanFilter.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates the current state and covariance.</span>
+
+<div class="viewcode-block" id="TimeVaryingOnlineKalmanFilter.update">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.TimeVaryingOnlineKalmanFilter.update">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Updates the current state and covariance.</span>
 
 <span class="sd">        :param y: observation :math:`\\in\\Re^M`</span>
 <span class="sd">        :return: (state, covariance): tuple containing the updated state vector and covariance matrix.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># if y.ndim == 1:</span>
         <span class="c1">#     y = np.expand_dims(y, axis=1)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
@@ -292,11 +311,15 @@
             <span class="n">K</span> <span class="o">=</span> <span class="n">P</span> <span class="o">@</span> <span class="n">Z</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">Sinv</span>
             <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">K</span> <span class="o">@</span> <span class="n">innovation</span>
             <span class="n">P</span> <span class="o">=</span> <span class="p">(</span><span class="n">I</span> <span class="o">-</span> <span class="n">K</span> <span class="o">@</span> <span class="n">Z</span><span class="p">)</span> <span class="o">@</span> <span class="n">P</span>
-        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">P</span></div></div>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">P</span></div>
+</div>
 
 
-<div class="viewcode-block" id="filterLDS_SS_withMissingValues_torch"><a class="viewcode-back" href="../../ssm.html#ssm.inference.filterLDS_SS_withMissingValues_torch">[docs]</a><span class="k">def</span> <span class="nf">filterLDS_SS_withMissingValues_torch</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Kalman filter implementation of the algorithm described in Shumway and</span>
+
+<div class="viewcode-block" id="filterLDS_SS_withMissingValues_torch">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.filterLDS_SS_withMissingValues_torch">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filterLDS_SS_withMissingValues_torch</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">""" Kalman filter implementation of the algorithm described in Shumway and</span>
 <span class="sd">    Stoffer 2006.</span>
 
 <span class="sd">    :param: y: time series to be smoothed</span>
@@ -323,14 +346,14 @@
 <span class="sd">    :return:  {xnn1, Pnn1, xnn, Pnn, innov, K, Sn, log_like}: xnn1 and Pnn1 (predicted means, MxT, and covariances, MxMxT), xnn and Pnn (filtered means, MxT, and covariances, MxMxT), innov (innovations, NxT), K (Kalman gain matrices, MxNxT), Sn (innovations covariance matrices, NxNxT), log_like (data loglikelihood, float).</span>
 <span class="sd">    :rtype: dictionary</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="kn">import</span> <span class="nn">torch</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
     <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]))</span> <span class="ow">or</span> <span class="n">torch</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first or last observation cannot contain nan&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The first or last observation cannot contain nan"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">m0</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;mean must be 1 dimensional&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"mean must be 1 dimensional"</span><span class="p">)</span>
 
     <span class="c1"># N: number of observations</span>
     <span class="c1"># M: dim state space</span>
@@ -358,7 +381,7 @@
     <span class="n">log_like</span> <span class="o">=</span> <span class="o">-</span><span class="n">N</span><span class="o">*</span><span class="n">P</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">-</span> <span class="n">torch</span><span class="o">.</span><span class="n">logdet</span><span class="p">(</span><span class="n">Sn</span><span class="p">)</span> <span class="o">-</span> \
         <span class="n">innov</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">Sinv</span> <span class="o">@</span> <span class="n">innov</span>
     <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">log_like</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;obtained nan log likelihood&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"obtained nan log likelihood"</span><span class="p">)</span>
 
     <span class="n">xnn1_h</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">xnn1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">Pnn1_h</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pnn1</span>
@@ -385,7 +408,7 @@
         <span class="n">log_like</span> <span class="o">=</span> <span class="n">log_like</span><span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">logdet</span><span class="p">(</span><span class="n">Sn</span><span class="p">)</span> <span class="o">-</span>\
             <span class="n">innov</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">Sinv</span> <span class="o">@</span> <span class="n">innov</span>
         <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">log_like</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;obtained nan log likelihood&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"obtained nan log likelihood"</span><span class="p">)</span>
         <span class="n">xnn1_h</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">xnn1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">Pnn1_h</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pnn1</span>
         <span class="n">xnn_h</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">xnn</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -393,13 +416,16 @@
         <span class="n">innov_h</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">innov</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">Sn_h</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">Sn</span>
     <span class="n">log_like</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">log_like</span>
-    <span class="n">answer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;xnn1&quot;</span><span class="p">:</span> <span class="n">xnn1_h</span><span class="p">,</span> <span class="s2">&quot;Pnn1&quot;</span><span class="p">:</span> <span class="n">Pnn1_h</span><span class="p">,</span> <span class="s2">&quot;xnn&quot;</span><span class="p">:</span> <span class="n">xnn_h</span><span class="p">,</span> <span class="s2">&quot;Pnn&quot;</span><span class="p">:</span> <span class="n">Pnn_h</span><span class="p">,</span>
-              <span class="s2">&quot;innov&quot;</span><span class="p">:</span> <span class="n">innov_h</span><span class="p">,</span> <span class="s2">&quot;KN&quot;</span><span class="p">:</span> <span class="n">K</span><span class="p">,</span> <span class="s2">&quot;Sn&quot;</span><span class="p">:</span> <span class="n">Sn_h</span><span class="p">,</span> <span class="s2">&quot;log_like&quot;</span><span class="p">:</span> <span class="n">log_like</span><span class="p">}</span>
+    <span class="n">answer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"xnn1"</span><span class="p">:</span> <span class="n">xnn1_h</span><span class="p">,</span> <span class="s2">"Pnn1"</span><span class="p">:</span> <span class="n">Pnn1_h</span><span class="p">,</span> <span class="s2">"xnn"</span><span class="p">:</span> <span class="n">xnn_h</span><span class="p">,</span> <span class="s2">"Pnn"</span><span class="p">:</span> <span class="n">Pnn_h</span><span class="p">,</span>
+              <span class="s2">"innov"</span><span class="p">:</span> <span class="n">innov_h</span><span class="p">,</span> <span class="s2">"KN"</span><span class="p">:</span> <span class="n">K</span><span class="p">,</span> <span class="s2">"Sn"</span><span class="p">:</span> <span class="n">Sn_h</span><span class="p">,</span> <span class="s2">"log_like"</span><span class="p">:</span> <span class="n">log_like</span><span class="p">}</span>
     <span class="k">return</span> <span class="n">answer</span></div>
 
 
-<div class="viewcode-block" id="logLikeLDS_withMissingValues_torch"><a class="viewcode-back" href="../../ssm.html#ssm.inference.logLikeLDS_withMissingValues_torch">[docs]</a><span class="k">def</span> <span class="nf">logLikeLDS_withMissingValues_torch</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Kalman filter implementation of the algorithm described in Shumway and</span>
+
+<div class="viewcode-block" id="logLikeLDS_withMissingValues_torch">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.logLikeLDS_withMissingValues_torch">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">logLikeLDS_withMissingValues_torch</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">""" Kalman filter implementation of the algorithm described in Shumway and</span>
 <span class="sd">    Stoffer 2006.</span>
 
 <span class="sd">    N: dimensionality of observations</span>
@@ -438,14 +464,14 @@
 <span class="sd">    :return:  log_like (data loglikelihood, float).</span>
 <span class="sd">    :rtype: dictionary</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="kn">import</span> <span class="nn">torch</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
     <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]))</span> <span class="ow">or</span> <span class="n">torch</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first or last observation cannot contain nan&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The first or last observation cannot contain nan"</span><span class="p">)</span>
 
     <span class="c1"># if m0.ndim != 1:</span>
-    <span class="c1">#     raise ValueError(&quot;mean must be 1 dimensional&quot;)</span>
+    <span class="c1">#     raise ValueError("mean must be 1 dimensional")</span>
 
     <span class="c1"># T: number of observations</span>
     <span class="c1"># M: dim state space</span>
@@ -462,7 +488,7 @@
         <span class="n">xnn1</span> <span class="o">=</span> <span class="n">u</span> <span class="o">+</span> <span class="n">B</span> <span class="o">@</span> <span class="n">xnn</span>
         <span class="n">Pnn1</span> <span class="o">=</span> <span class="n">B</span> <span class="o">@</span> <span class="n">Pnn</span> <span class="o">@</span> <span class="n">B</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">Q</span>
         <span class="c1"># print(Pnn1)</span>
-        <span class="c1"># Pnn1.register_hook(print)  # This will print the gradient when it&#39;s computed.</span>
+        <span class="c1"># Pnn1.register_hook(print)  # This will print the gradient when it's computed.</span>
 
         <span class="k">if</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]))):</span>
             <span class="n">xnn</span> <span class="o">=</span> <span class="n">xnn1</span>
@@ -479,12 +505,15 @@
         <span class="n">log_like</span> <span class="o">+=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="n">log2Pi</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">logdet</span><span class="p">(</span><span class="n">Sn</span><span class="p">)</span> <span class="o">+</span>
                            <span class="n">innov</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">torch</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">Sn</span><span class="p">,</span> <span class="n">innov</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">log_like</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;obtained nan log likelihood&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"obtained nan log likelihood"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">log_like</span></div>
 
 
-<div class="viewcode-block" id="lds_state_forecast"><a class="viewcode-back" href="../../ssm.html#ssm.inference.lds_state_forecast">[docs]</a><span class="k">def</span> <span class="nf">lds_state_forecast</span><span class="p">(</span><span class="n">xnn</span><span class="p">,</span> <span class="n">Pnn</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="lds_state_forecast">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.lds_state_forecast">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">lds_state_forecast</span><span class="p">(</span><span class="n">xnn</span><span class="p">,</span> <span class="n">Pnn</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Forecasts the mean and covariance of a Kalman filter state at horizon h.</span>
 
 <span class="sd">    Args:</span>
@@ -497,7 +526,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        x_pred (Tensor): Forecasted mean at time n+h</span>
 <span class="sd">        P_pred (Tensor): Forecasted covariance at time n+h</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">x_pred</span> <span class="o">=</span> <span class="n">xnn</span>
     <span class="n">P_pred</span> <span class="o">=</span> <span class="n">Pnn</span>
 
@@ -508,8 +537,11 @@
     <span class="k">return</span> <span class="n">x_pred</span><span class="p">,</span> <span class="n">P_pred</span></div>
 
 
-<div class="viewcode-block" id="lds_states_forecast"><a class="viewcode-back" href="../../ssm.html#ssm.inference.lds_states_forecast">[docs]</a><span class="k">def</span> <span class="nf">lds_states_forecast</span><span class="p">(</span><span class="n">xnn</span><span class="p">,</span> <span class="n">Pnn</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="lds_states_forecast">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.lds_states_forecast">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">lds_states_forecast</span><span class="p">(</span><span class="n">xnn</span><span class="p">,</span> <span class="n">Pnn</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 
 <span class="sd">	Forecasts the mean and covariance of a batch of Kalman filter states at horizon h.</span>
 
@@ -530,7 +562,7 @@
 
 <span class="sd">    :return:  (x_pred, P_pred): tuple containing the forecasted mean and covariance at time n+h</span>
 <span class="sd">    :rtype: tuple</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">N</span> <span class="o">=</span> <span class="n">xnn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
     <span class="n">x_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">xnn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">xnn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
@@ -543,7 +575,10 @@
     <span class="k">return</span> <span class="n">x_pred</span><span class="p">,</span> <span class="n">P_pred</span></div>
 
 
-<div class="viewcode-block" id="log_like_observations_given_lds_state_forecasts"><a class="viewcode-back" href="../../ssm.html#ssm.inference.log_like_observations_given_lds_state_forecasts">[docs]</a><span class="k">def</span> <span class="nf">log_like_observations_given_lds_state_forecasts</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x_pred</span><span class="p">,</span> <span class="n">P_pred</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+
+<div class="viewcode-block" id="log_like_observations_given_lds_state_forecasts">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.log_like_observations_given_lds_state_forecasts">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">log_like_observations_given_lds_state_forecasts</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x_pred</span><span class="p">,</span> <span class="n">P_pred</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
     <span class="n">first_forecasted_sample</span> <span class="o">=</span> <span class="n">h</span><span class="o">-</span><span class="mi">1</span>
     <span class="n">T</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">N</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -568,14 +603,17 @@
         <span class="n">mahal</span> <span class="o">=</span> <span class="n">innov</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">innov</span><span class="p">)</span>
         <span class="n">sign</span><span class="p">,</span> <span class="n">log_det</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">sign</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;S is not positive definite&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"S is not positive definite"</span><span class="p">)</span>
         <span class="n">log_like</span> <span class="o">+=</span> <span class="n">N_log_2pi</span> <span class="o">+</span> <span class="n">log_det</span> <span class="o">+</span> <span class="n">mahal</span>
         <span class="n">num_terms</span> <span class="o">+=</span> <span class="mi">1</span>
     <span class="n">log_like</span> <span class="o">/=</span> <span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">num_terms</span>
     <span class="k">return</span> <span class="n">log_like</span></div>
 
 
-<div class="viewcode-block" id="log_like_observations_given_ekf_state_forecasts"><a class="viewcode-back" href="../../ssm.html#ssm.inference.log_like_observations_given_ekf_state_forecasts">[docs]</a><span class="k">def</span> <span class="nf">log_like_observations_given_ekf_state_forecasts</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x_pred</span><span class="p">,</span> <span class="n">P_pred</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">Zdot</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+
+<div class="viewcode-block" id="log_like_observations_given_ekf_state_forecasts">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.log_like_observations_given_ekf_state_forecasts">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">log_like_observations_given_ekf_state_forecasts</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">x_pred</span><span class="p">,</span> <span class="n">P_pred</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">Zdot</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
     <span class="n">first_forecasted_sample</span> <span class="o">=</span> <span class="n">h</span><span class="o">-</span><span class="mi">1</span>
     <span class="n">T</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">N</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -600,19 +638,23 @@
         <span class="n">mahal_n</span> <span class="o">=</span> <span class="n">innov_n</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">S_n</span><span class="p">,</span> <span class="n">innov_n</span><span class="p">)</span>
         <span class="n">sign_n</span><span class="p">,</span> <span class="n">log_det_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">S_n</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">sign_n</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;S is not positive definite&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"S is not positive definite"</span><span class="p">)</span>
         <span class="n">log_like</span> <span class="o">+=</span> <span class="n">N_log_2pi</span> <span class="o">+</span> <span class="n">log_det_n</span> <span class="o">+</span> <span class="n">mahal_n</span>
         <span class="n">num_terms</span> <span class="o">+=</span> <span class="mi">1</span>
     <span class="n">log_like</span> <span class="o">/=</span> <span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">num_terms</span>
     <span class="k">return</span> <span class="n">log_like</span></div>
 
 
-<div class="viewcode-block" id="lds_observation_forecast"><a class="viewcode-back" href="../../ssm.html#ssm.inference.lds_observation_forecast">[docs]</a><span class="k">def</span> <span class="nf">lds_observation_forecast</span><span class="p">(</span><span class="n">xnn</span><span class="p">,</span> <span class="n">Pnn</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
+
+<div class="viewcode-block" id="lds_observation_forecast">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.lds_observation_forecast">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">lds_observation_forecast</span><span class="p">(</span><span class="n">xnn</span><span class="p">,</span> <span class="n">Pnn</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
     <span class="n">x_pred</span><span class="p">,</span> <span class="n">P_pred</span> <span class="o">=</span> <span class="n">lds_state_forecast</span><span class="p">(</span><span class="n">xnn</span><span class="o">=</span><span class="n">xnn</span><span class="p">,</span> <span class="n">Pnn</span><span class="o">=</span><span class="n">Pnn</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">u</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="n">Q</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">)</span>
     <span class="n">y_pred</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">Z</span> <span class="o">@</span> <span class="n">x_pred</span>
     <span class="n">S_pred</span> <span class="o">=</span> <span class="n">Z</span> <span class="o">@</span> <span class="n">P_pred</span> <span class="o">@</span> <span class="n">Z</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">R</span>
     <span class="n">S_pred</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">S_pred</span> <span class="o">+</span> <span class="n">S_pred</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">S_pred</span></div>
+
 
 <span class="c1">#     y_hat = Z @ xnn1.squeeze() + a[:, None]</span>
 <span class="c1">#     if Pnn1.ndim &lt; 3:</span>
@@ -627,15 +669,20 @@
 <span class="c1">#     return y_hat, S</span>
 
 
-<div class="viewcode-block" id="lds_observations_forecast"><a class="viewcode-back" href="../../ssm.html#ssm.inference.lds_observations_forecast">[docs]</a><span class="k">def</span> <span class="nf">lds_observations_forecast</span><span class="p">(</span><span class="n">xnn</span><span class="p">,</span> <span class="n">Pnn</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
+<div class="viewcode-block" id="lds_observations_forecast">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.lds_observations_forecast">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">lds_observations_forecast</span><span class="p">(</span><span class="n">xnn</span><span class="p">,</span> <span class="n">Pnn</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
     <span class="n">x_pred</span><span class="p">,</span> <span class="n">P_pred</span> <span class="o">=</span> <span class="n">lds_states_forecast</span><span class="p">(</span><span class="n">xnn</span><span class="o">=</span><span class="n">xnn</span><span class="p">,</span> <span class="n">Pnn</span><span class="o">=</span><span class="n">Pnn</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">u</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="o">=</span><span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="o">=</span><span class="n">V0</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">h</span><span class="p">)</span>
-    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">a</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ij, jkl -&gt; ikl&quot;</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">x_pred</span><span class="p">)</span>
-    <span class="n">S_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ij,jkt,kl -&gt; ilt&quot;</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">P_pred</span><span class="p">,</span> <span class="n">Z</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="n">R</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">a</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"ij, jkl -&gt; ikl"</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">x_pred</span><span class="p">)</span>
+    <span class="n">S_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"ij,jkt,kl -&gt; ilt"</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">P_pred</span><span class="p">,</span> <span class="n">Z</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="n">R</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
     <span class="n">S_pred</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">S_pred</span> <span class="o">+</span> <span class="n">S_pred</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">S_pred</span></div>
 
-<div class="viewcode-block" id="ekf_forecast"><a class="viewcode-back" href="../../ssm.html#ssm.inference.ekf_forecast">[docs]</a><span class="k">def</span> <span class="nf">ekf_forecast</span><span class="p">(</span><span class="n">xnn</span><span class="p">,</span> <span class="n">Pnn</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Bdot</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ekf_forecast">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.ekf_forecast">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ekf_forecast</span><span class="p">(</span><span class="n">xnn</span><span class="p">,</span> <span class="n">Pnn</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Bdot</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Forecasts the mean and covariance of an EKF filter state at horizon h.</span>
 
 <span class="sd">    N: dimensionality of observations</span>
@@ -665,7 +712,7 @@
 <span class="sd">    :return:  (x_pred, P_pred): tuple containing the forecasted mean and covariance at time n+h</span>
 <span class="sd">    :rtype: tuple</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">x_pred</span> <span class="o">=</span> <span class="n">xnn</span>
     <span class="n">P_pred</span> <span class="o">=</span> <span class="n">Pnn</span>
 
@@ -676,7 +723,10 @@
     <span class="k">return</span> <span class="n">x_pred</span><span class="p">,</span> <span class="n">P_pred</span></div>
 
 
-<div class="viewcode-block" id="ekf_states_forecast"><a class="viewcode-back" href="../../ssm.html#ssm.inference.ekf_states_forecast">[docs]</a><span class="k">def</span> <span class="nf">ekf_states_forecast</span><span class="p">(</span><span class="n">xnn</span><span class="p">,</span> <span class="n">Pnn</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Bdot</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
+
+<div class="viewcode-block" id="ekf_states_forecast">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.ekf_states_forecast">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ekf_states_forecast</span><span class="p">(</span><span class="n">xnn</span><span class="p">,</span> <span class="n">Pnn</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Bdot</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
     <span class="n">N</span> <span class="o">=</span> <span class="n">xnn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
     <span class="n">x_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">xnn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">xnn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
     <span class="n">P_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">Pnn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Pnn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">Pnn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span>
@@ -692,9 +742,12 @@
     <span class="k">return</span> <span class="n">x_pred</span><span class="p">,</span> <span class="n">P_pred</span></div>
 
 
-<div class="viewcode-block" id="filterEKF_withMissingValues_torch"><a class="viewcode-back" href="../../ssm.html#ssm.inference.filterEKF_withMissingValues_torch">[docs]</a><span class="k">def</span> <span class="nf">filterEKF_withMissingValues_torch</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Bdot</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">Zdot</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span>
+
+<div class="viewcode-block" id="filterEKF_withMissingValues_torch">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.filterEKF_withMissingValues_torch">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filterEKF_withMissingValues_torch</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Bdot</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">Zdot</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span>
                                       <span class="n">Sn_reg</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Extended Kalman filter implementation of the algorithm described in</span>
+<span class="w">    </span><span class="sd">""" Extended Kalman filter implementation of the algorithm described in</span>
 <span class="sd">    Chapter 10 of Durbin and Koopman 2012.</span>
 
 <span class="sd">    N: dimensionality of observations</span>
@@ -733,14 +786,14 @@
 <span class="sd">    :return:  {xnn1, Pnn1, xnn, Pnn, innov, K, Sn, log_like}: xnn1 and Pnn1 (predicted means, MxT, and covariances, MxMxT), xnn and Pnn (filtered means, MxT, and covariances, MxMxT), innov (innovations, NxT), K (Kalman gain matrices, MxNxT), Sn (innovations covariance matrices, NxNxT), log_like (data loglikelihood, float).</span>
 <span class="sd">    :rtype: dictionary</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="kn">import</span> <span class="nn">torch</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
     <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]))</span> <span class="ow">or</span> <span class="n">torch</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first or last observation cannot contain nan&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The first or last observation cannot contain nan"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">m0</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;mean must be 1 dimensional&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"mean must be 1 dimensional"</span><span class="p">)</span>
 
     <span class="c1"># T: number of observations</span>
     <span class="c1"># M: dim state space</span>
@@ -778,21 +831,24 @@
         <span class="n">log_like</span> <span class="o">+=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="n">log2Pi</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">logdet</span><span class="p">(</span><span class="n">Sn</span><span class="p">)</span> <span class="o">+</span>
                            <span class="n">innov</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">torch</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">Sn</span><span class="p">,</span> <span class="n">innov</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">log_like</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;obtained nan log likelihood&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"obtained nan log likelihood"</span><span class="p">)</span>
         <span class="n">xnn1_h</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">xnn1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">Pnn1_h</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pnn1</span>
         <span class="n">xnn_h</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">xnn</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">Pnn_h</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">Pnn</span>
         <span class="n">innov_h</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="n">innov</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">Sn_h</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">Sn</span>
-    <span class="n">answer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;xnn1&quot;</span><span class="p">:</span> <span class="n">xnn1_h</span><span class="p">,</span> <span class="s2">&quot;Pnn1&quot;</span><span class="p">:</span> <span class="n">Pnn1_h</span><span class="p">,</span> <span class="s2">&quot;xnn&quot;</span><span class="p">:</span> <span class="n">xnn_h</span><span class="p">,</span> <span class="s2">&quot;Pnn&quot;</span><span class="p">:</span> <span class="n">Pnn_h</span><span class="p">,</span>
-              <span class="s2">&quot;innov&quot;</span><span class="p">:</span> <span class="n">innov_h</span><span class="p">,</span> <span class="s2">&quot;KN&quot;</span><span class="p">:</span> <span class="n">K</span><span class="p">,</span> <span class="s2">&quot;Sn&quot;</span><span class="p">:</span> <span class="n">Sn_h</span><span class="p">,</span> <span class="s2">&quot;log_like&quot;</span><span class="p">:</span> <span class="n">log_like</span><span class="p">}</span>
+    <span class="n">answer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"xnn1"</span><span class="p">:</span> <span class="n">xnn1_h</span><span class="p">,</span> <span class="s2">"Pnn1"</span><span class="p">:</span> <span class="n">Pnn1_h</span><span class="p">,</span> <span class="s2">"xnn"</span><span class="p">:</span> <span class="n">xnn_h</span><span class="p">,</span> <span class="s2">"Pnn"</span><span class="p">:</span> <span class="n">Pnn_h</span><span class="p">,</span>
+              <span class="s2">"innov"</span><span class="p">:</span> <span class="n">innov_h</span><span class="p">,</span> <span class="s2">"KN"</span><span class="p">:</span> <span class="n">K</span><span class="p">,</span> <span class="s2">"Sn"</span><span class="p">:</span> <span class="n">Sn_h</span><span class="p">,</span> <span class="s2">"log_like"</span><span class="p">:</span> <span class="n">log_like</span><span class="p">}</span>
     <span class="k">return</span> <span class="n">answer</span></div>
 
 
-<div class="viewcode-block" id="logLikeEKF_withMissingValues_torch"><a class="viewcode-back" href="../../ssm.html#ssm.inference.logLikeEKF_withMissingValues_torch">[docs]</a><span class="k">def</span> <span class="nf">logLikeEKF_withMissingValues_torch</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Bdot</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">Zdot</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span>
+
+<div class="viewcode-block" id="logLikeEKF_withMissingValues_torch">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.logLikeEKF_withMissingValues_torch">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">logLikeEKF_withMissingValues_torch</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Bdot</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">Zdot</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span>
                                        <span class="n">Sn_reg</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Calculation of the log-likelihood for the extended Kalman filter model.</span>
+<span class="w">    </span><span class="sd">""" Calculation of the log-likelihood for the extended Kalman filter model.</span>
 
 <span class="sd">    N: dimensionality of observations</span>
 
@@ -830,14 +886,14 @@
 <span class="sd">    :return:  {xnn1, Pnn1, xnn, Pnn, innov, K, Sn, log_like}: xnn1 and Pnn1 (predicted means, MxT, and covariances, MxMxT), xnn and Pnn (filtered means, MxT, and covariances, MxMxT), innov (innovations, NxT), K (Kalman gain matrices, MxNxT), Sn (innovations covariance matrices, NxNxT), log_like (data loglikelihood, float).</span>
 <span class="sd">    :rtype: dictionary</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="kn">import</span> <span class="nn">torch</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
     <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]))</span> <span class="ow">or</span> <span class="n">torch</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first or last observation cannot contain nan&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The first or last observation cannot contain nan"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">m0</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;mean must be 1 dimensional&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"mean must be 1 dimensional"</span><span class="p">)</span>
 
     <span class="c1"># T: number of observations</span>
     <span class="c1"># M: dim state space</span>
@@ -867,12 +923,15 @@
         <span class="n">log_like</span> <span class="o">+=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="n">log2Pi</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">logdet</span><span class="p">(</span><span class="n">Sn</span><span class="p">)</span> <span class="o">+</span>
                            <span class="n">innov</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">torch</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">Sn</span><span class="p">,</span> <span class="n">innov</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">log_like</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;obtained nan log likelihood&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"obtained nan log likelihood"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">log_like</span></div>
 
 
-<div class="viewcode-block" id="filterLDS_SS_withMissingValues_np"><a class="viewcode-back" href="../../ssm.html#ssm.inference.filterLDS_SS_withMissingValues_np">[docs]</a><span class="k">def</span> <span class="nf">filterLDS_SS_withMissingValues_np</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Kalman filter implementation of the algorithm described in Shumway and</span>
+
+<div class="viewcode-block" id="filterLDS_SS_withMissingValues_np">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.filterLDS_SS_withMissingValues_np">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filterLDS_SS_withMissingValues_np</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">R</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">""" Kalman filter implementation of the algorithm described in Shumway and</span>
 <span class="sd">    Stoffer 2006.</span>
 
 <span class="sd">    :param y: time series to be smoothed</span>
@@ -905,13 +964,13 @@
 <span class="sd">    :return:  {xnn1, Pnn1, xnn, Pnn, innov, K, Sn, log_like}: xnn1 and Pnn1 (predicted means, Mx1xT, and covariances, MxMxT), xnn and Pnn (filtered means, Mx1xT, and covariances, MxMxT), innov (innovations, Nx1xT), K (Kalman gain matrices, MxNxT), Sn (innovations covariance matrices, NxNxT), log_like (data loglikelihood, float).</span>
 <span class="sd">    :rtype: dictionary</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">m0</span><span class="p">))</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">V0</span><span class="p">)):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;m0 and V0 cannot contain nan&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"m0 and V0 cannot contain nan"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">m0</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;mean must be 1 dimensional&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"mean must be 1 dimensional"</span><span class="p">)</span>
 
     <span class="c1"># N: number of observations</span>
     <span class="c1"># M: dim state space</span>
@@ -978,12 +1037,13 @@
             <span class="n">valid_obs_count</span> <span class="o">+=</span> <span class="n">P</span>
 
     <span class="n">log_like</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">valid_obs_count</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">-</span> <span class="n">log_like</span><span class="p">)</span>
-    <span class="n">answer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;xnn1&quot;</span><span class="p">:</span> <span class="n">xnn1</span><span class="p">,</span> <span class="s2">&quot;Pnn1&quot;</span><span class="p">:</span> <span class="n">Pnn1</span><span class="p">,</span> <span class="s2">&quot;xnn&quot;</span><span class="p">:</span> <span class="n">xnn</span><span class="p">,</span> <span class="s2">&quot;Pnn&quot;</span><span class="p">:</span> <span class="n">Pnn</span><span class="p">,</span>
-              <span class="s2">&quot;innov&quot;</span><span class="p">:</span> <span class="n">innov</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">:</span> <span class="n">K</span><span class="p">,</span> <span class="s2">&quot;Sn&quot;</span><span class="p">:</span> <span class="n">Sn</span><span class="p">,</span> <span class="s2">&quot;log_like&quot;</span><span class="p">:</span> <span class="n">log_like</span><span class="p">}</span>
+    <span class="n">answer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"xnn1"</span><span class="p">:</span> <span class="n">xnn1</span><span class="p">,</span> <span class="s2">"Pnn1"</span><span class="p">:</span> <span class="n">Pnn1</span><span class="p">,</span> <span class="s2">"xnn"</span><span class="p">:</span> <span class="n">xnn</span><span class="p">,</span> <span class="s2">"Pnn"</span><span class="p">:</span> <span class="n">Pnn</span><span class="p">,</span>
+              <span class="s2">"innov"</span><span class="p">:</span> <span class="n">innov</span><span class="p">,</span> <span class="s2">"K"</span><span class="p">:</span> <span class="n">K</span><span class="p">,</span> <span class="s2">"Sn"</span><span class="p">:</span> <span class="n">Sn</span><span class="p">,</span> <span class="s2">"log_like"</span><span class="p">:</span> <span class="n">log_like</span><span class="p">}</span>
     <span class="k">return</span> <span class="n">answer</span></div>
 
+
 <span class="c1"># def filterLDS_SS_withMissingValues_np(y, u, B, Q, m0, V0, a, Z, R):</span>
-<span class="c1">#     &quot;&quot;&quot; Kalman filter implementation of the algorithm described in Shumway and</span>
+<span class="c1">#     """ Kalman filter implementation of the algorithm described in Shumway and</span>
 <span class="c1">#     Stoffer 2006.</span>
 <span class="c1"># </span>
 <span class="c1">#     :param: y: time series to be smoothed</span>
@@ -1016,10 +1076,10 @@
 <span class="c1">#     :return:  {xnn1, Pnn1, xnn, Pnn, innov, K, Sn, log_like}: xnn1 and Pnn1 (predicted means, Mx1xT, and covariances, MxMxT), xnn and Pnn (filtered means, Mx1xT, and covariances, MxMxT), innov (innovations, Nx1xT), K (Kalman gain matrices, MxNxT), Sn (innovations covariance matrices, NxNxT), log_like (data loglikelihood, float).</span>
 <span class="c1">#     :rtype: dictionary</span>
 <span class="c1"># </span>
-<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     """</span>
 <span class="c1"># </span>
 <span class="c1">#     if m0.ndim != 1:</span>
-<span class="c1">#         raise ValueError(&quot;mean must be 1 dimensional&quot;)</span>
+<span class="c1">#         raise ValueError("mean must be 1 dimensional")</span>
 <span class="c1"># </span>
 <span class="c1">#     # N: number of observations</span>
 <span class="c1">#     # M: dim state space</span>
@@ -1067,13 +1127,13 @@
 <span class="c1">#         log_like = log_like-np.linalg.slogdet(Sn[:, :, k])[1] -\</span>
 <span class="c1">#             innov[:, :, k].T @ Sinv @ innov[:, :, k]</span>
 <span class="c1">#     log_like = 0.5 * log_like</span>
-<span class="c1">#     answer = {&quot;xnn1&quot;: xnn1, &quot;Pnn1&quot;: Pnn1, &quot;xnn&quot;: xnn, &quot;Pnn&quot;: Pnn,</span>
-<span class="c1">#               &quot;innov&quot;: innov, &quot;KN&quot;: K, &quot;Sn&quot;: Sn, &quot;log_like&quot;: log_like}</span>
+<span class="c1">#     answer = {"xnn1": xnn1, "Pnn1": Pnn1, "xnn": xnn, "Pnn": Pnn,</span>
+<span class="c1">#               "innov": innov, "KN": K, "Sn": Sn, "log_like": log_like}</span>
 <span class="c1">#     return answer</span>
 
 
 <span class="c1"># def smoothLDS_SS(B, xnn, Pnn, xnn1, Pnn1, m0, V0):</span>
-<span class="c1">#     &quot;&quot;&quot; Kalman smoother implementation</span>
+<span class="c1">#     """ Kalman smoother implementation</span>
 <span class="c1"># </span>
 <span class="c1">#     :param: B: state transition matrix</span>
 <span class="c1">#     :type: B: numpy matrix (MxM)</span>
@@ -1098,9 +1158,9 @@
 <span class="c1"># </span>
 <span class="c1">#     :return:  {xnN, PnN, Jn, x0N, V0N, J0}: xnn1 and Pnn1 (smoothed means, Mx1xT, and covariances, MxMxT), Jn (smoothing gain matrix, MxMxT), x0N and V0N (smoothed initial state mean, M, and covariance, MxM), J0 (initial smoothing gain matrix, MxN).</span>
 <span class="c1"># </span>
-<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     """</span>
 <span class="c1">#     if m0.ndim != 1:</span>
-<span class="c1">#         raise ValueError(&quot;mean must be 1 dimensional&quot;)</span>
+<span class="c1">#         raise ValueError("mean must be 1 dimensional")</span>
 <span class="c1"># </span>
 <span class="c1">#     N = xnn.shape[2]</span>
 <span class="c1">#     M = B.shape[0]</span>
@@ -1121,12 +1181,14 @@
 <span class="c1">#     J0 = V0 @ B.T @ np.linalg.inv(Pnn1[:, :, 0])</span>
 <span class="c1">#     x0N = np.expand_dims(m0, 1) + J0 @ (xnN[:, :, 0] - xnn1[:, :, 0])</span>
 <span class="c1">#     V0N = V0 + J0 @ (PnN[:, :, 0] - Pnn1[:, :, 0]) @ J0.T</span>
-<span class="c1">#     answer = {&quot;xnN&quot;: xnN, &quot;PnN&quot;: PnN, &quot;Jn&quot;: Jn, &quot;x0N&quot;: x0N, &quot;V0N&quot;: V0N,</span>
-<span class="c1">#               &quot;J0&quot;: J0}</span>
+<span class="c1">#     answer = {"xnN": xnN, "PnN": PnN, "Jn": Jn, "x0N": x0N, "V0N": V0N,</span>
+<span class="c1">#               "J0": J0}</span>
 <span class="c1">#     return answer</span>
 
-<div class="viewcode-block" id="smoothLDS_SS"><a class="viewcode-back" href="../../ssm.html#ssm.inference.smoothLDS_SS">[docs]</a><span class="k">def</span> <span class="nf">smoothLDS_SS</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">xnn</span><span class="p">,</span> <span class="n">Pnn</span><span class="p">,</span> <span class="n">xnn1</span><span class="p">,</span> <span class="n">Pnn1</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Kalman smoother implementation</span>
+<div class="viewcode-block" id="smoothLDS_SS">
+<a class="viewcode-back" href="../../ssm.html#ssm.inference.smoothLDS_SS">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">smoothLDS_SS</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">xnn</span><span class="p">,</span> <span class="n">Pnn</span><span class="p">,</span> <span class="n">xnn1</span><span class="p">,</span> <span class="n">Pnn1</span><span class="p">,</span> <span class="n">m0</span><span class="p">,</span> <span class="n">V0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">""" Kalman smoother implementation</span>
 
 <span class="sd">    :param: B: state transition matrix</span>
 <span class="sd">    :type: B: numpy matrix (MxM)</span>
@@ -1151,9 +1213,9 @@
 
 <span class="sd">    :return:  {xnN, PnN, Jn, x0N, V0N, J0}: xnn1 and Pnn1 (smoothed means, Mx1xT, and covariances, MxMxT), Jn (smoothing gain matrix, MxMxT), x0N and V0N (smoothed initial state mean, M, and covariance, MxM), J0 (initial smoothing gain matrix, MxN).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">m0</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;mean must be 1 dimensional&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"mean must be 1 dimensional"</span><span class="p">)</span>
 
     <span class="n">N</span> <span class="o">=</span> <span class="n">xnn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
     <span class="n">M</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -1174,9 +1236,10 @@
     <span class="n">J0</span> <span class="o">=</span> <span class="n">V0</span> <span class="o">@</span> <span class="n">B</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">Pnn1</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">])</span>
     <span class="n">x0N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">m0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">J0</span> <span class="o">@</span> <span class="p">(</span><span class="n">xnN</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">xnn1</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">])</span>
     <span class="n">V0N</span> <span class="o">=</span> <span class="n">V0</span> <span class="o">+</span> <span class="n">J0</span> <span class="o">@</span> <span class="p">(</span><span class="n">PnN</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">Pnn1</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">@</span> <span class="n">J0</span><span class="o">.</span><span class="n">T</span>
-    <span class="n">answer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;xnN&quot;</span><span class="p">:</span> <span class="n">xnN</span><span class="p">,</span> <span class="s2">&quot;PnN&quot;</span><span class="p">:</span> <span class="n">PnN</span><span class="p">,</span> <span class="s2">&quot;Jn&quot;</span><span class="p">:</span> <span class="n">Jn</span><span class="p">,</span> <span class="s2">&quot;x0N&quot;</span><span class="p">:</span> <span class="n">x0N</span><span class="p">,</span> <span class="s2">&quot;V0N&quot;</span><span class="p">:</span> <span class="n">V0N</span><span class="p">,</span>
-              <span class="s2">&quot;J0&quot;</span><span class="p">:</span> <span class="n">J0</span><span class="p">}</span>
+    <span class="n">answer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"xnN"</span><span class="p">:</span> <span class="n">xnN</span><span class="p">,</span> <span class="s2">"PnN"</span><span class="p">:</span> <span class="n">PnN</span><span class="p">,</span> <span class="s2">"Jn"</span><span class="p">:</span> <span class="n">Jn</span><span class="p">,</span> <span class="s2">"x0N"</span><span class="p">:</span> <span class="n">x0N</span><span class="p">,</span> <span class="s2">"V0N"</span><span class="p">:</span> <span class="n">V0N</span><span class="p">,</span>
+              <span class="s2">"J0"</span><span class="p">:</span> <span class="n">J0</span><span class="p">}</span>
     <span class="k">return</span> <span class="n">answer</span></div>
+
 </pre></div>
 
            </div>
