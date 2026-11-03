@@ -238,6 +238,131 @@ the Kalman filter.
 
 \end{proof}
 
+\begin{comment}
+
+\section{Missing observations}
+
+\begin{proposition}
+
+    For $n > m + 1$, let observations $\mathbf{y}_{m+1}, \ldots, \mathbf{y}_{n-1}$ be missing. The conditional distribution of the state $\mathbf{x}_n$ given the available observations $\mathbf{y}_1, \ldots, \mathbf{y}_m$ and $\mathbf{y}_n$ is given by:
+
+    \begin{align*}
+        P(\mathbf{x}_n|\mathbf{y}_1,\ldots,\mathbf{y}_m,\mathbf{y}_n) &= \mathcal{N}(\mathbf{x}_n|\mathbf{x}_{n|m,n}, P_{n|m,n}) \\
+        \mathbf{x}_{n|m,n} &= \mathbf{x}_{n|m} + K_n (\mathbf{y}_n - Z\mathbf{x}_{n|m}) \\
+        P_{n|m,n} &= P_{n|m} - K_n Z P_{n|m} \\
+        K_n &= P_{n|m} Z^\intercal (Z P_{n|m} Z^\intercal + R)^{-1}
+    \end{align*}
+    where $\mathbf{x}_{n|m}$ and $P_{n|m}$ are the $n$-step-ahead predictive mean and covariance given data up to time $m$, obtained by iterating the forecaster equations.
+
+\end{proposition}
+
+\begin{proof}
+    We prove this by formulating the joint distribution of $\mathbf{x}_n$ and $\mathbf{y}_n$ conditioned on the historical observations $\mathbf{y}_1, \ldots, \mathbf{y}_m$, and then applying Gaussian conditioning.
+
+    Since intermediate observations $\mathbf{y}_{m+1}, \ldots, \mathbf{y}_{n-1}$ are missing, they provide no information, meaning the filtration of available data at time $n-1$ remains equivalent to $\mathbf{y}_1, \ldots, \mathbf{y}_m$. By iterating the linear state-space model dynamics from time $m$ to $n$, the joint distribution of $(\mathbf{x}_n^\intercal, \mathbf{y}_n^\intercal)^\intercal$ given $\mathbf{y}_1, \ldots, \mathbf{y}_m$ is Gaussian:
+
+    \begin{align*}
+        \begin{bmatrix} \mathbf{x}_n \\ \mathbf{y}_n \end{bmatrix} \Bigg| \mathbf{y}_1, \ldots, \mathbf{y}_m &\sim \mathcal{N}\left(
+        \begin{bmatrix} \mathbf{x}_{n|m} \\ Z \mathbf{x}_{n|m} \end{bmatrix},
+        \begin{bmatrix} 
+        P_{n|m} & P_{n|m} Z^\intercal \\ 
+        Z P_{n|m} & Z P_{n|m} Z^\intercal + R 
+        \end{bmatrix}
+        \right)
+    \end{align*}
+
+    Applying standard Gaussian conditioning rules to extract $P(\mathbf{x}_n \mid \mathbf{y}_1, \ldots, \mathbf{y}_m, \mathbf{y}_n)$ from this joint distribution yields:
+
+    \begin{align*}
+        \mathbf{x}_{n|m,n} &= \mathbb{E}[\mathbf{x}_n \mid \mathbf{y}_1, \ldots, \mathbf{y}_m] + \operatorname{Cov}(\mathbf{x}_n, \mathbf{y}_n \mid \dots)\operatorname{Var}(\mathbf{y}_n \mid \dots)^{-1} (\mathbf{y}_n - \mathbb{E}[\mathbf{y}_n \mid \dots]) \\
+        &= \mathbf{x}_{n|m} + P_{n|m} Z^\intercal (Z P_{n|m} Z^\intercal + R)^{-1} (\mathbf{y}_n - Z \mathbf{x}_{n|m}) \\
+        &= \mathbf{x}_{n|m} + K_n (\mathbf{y}_n - Z \mathbf{x}_{n|m})
+    \end{align*}
+
+    Similarly, for the conditional covariance:
+
+    \begin{align*}
+        P_{n|m,n} &= \operatorname{Var}(\mathbf{x}_n \mid \mathbf{y}_1, \ldots, \mathbf{y}_m) - \operatorname{Cov}(\mathbf{x}_n, \mathbf{y}_n \mid \dots)\operatorname{Var}(\mathbf{y}_n \mid \dots)^{-1}\operatorname{Cov}(\mathbf{y}_n, \mathbf{x}_n \mid \dots) \\
+        &= P_{n|m} - P_{n|m} Z^\intercal (Z P_{n|m} Z^\intercal + R)^{-1} Z P_{n|m} \\
+        &= P_{n|m} - K_n Z P_{n|m}
+    \end{align*}
+
+    Thus, the posterior distribution is $\mathcal{N}(\mathbf{x}_n \mid \mathbf{x}_{n|m,n}, P_{n|m,n})$.
+
+    Notes:
+
+    \begin{enumerate}
+
+        \item The joint Gaussian structure follows from the linear-Gaussian definition of the state-space model and the chain rule of conditional probabilities across the unobserved steps $m+1$ to $n$.
+
+        \item The mean vector combines the prior prediction $\mathbf{x}_{n|m}$ with the innovation scaled by the modified Kalman gain $K_n$.
+
+        \item The covariance update reduces the prior prediction uncertainty $P_{n|m}$ by incorporating the information provided by the measurement $\mathbf{y}_n$.
+
+    \end{enumerate}
+
+\end{proof}
+
+\begin{proposition}
+
+    For $n > m + 1$, let observations $\mathbf{y}_{m+1}, \ldots, \mathbf{y}_{n-1}$ be missing, followed by valid observations at steps $n$ and $n+1$. Given the filtered distribution $P(\mathbf{x}_n \mid \mathbf{y}_1, \ldots, \mathbf{y}_m, \mathbf{y}_n) = \mathcal{N}(\mathbf{x}_n \mid \mathbf{x}_{n|m,n}, P_{n|m,n})$, the filtered distribution at step $n+1$ is given by:
+
+    \begin{align*}
+        P(\mathbf{x}_{n+1} \mid \mathbf{y}_1, \ldots, \mathbf{y}_m, \mathbf{y}_n, \mathbf{y}_{n+1}) &= \mathcal{N}(\mathbf{x}_{n+1} \mid \mathbf{x}_{n+1|m,n,n+1}, P_{n+1|m,n,n+1}) \\
+        \mathbf{x}_{n+1|m,n} &= A \mathbf{x}_{n|m,n} \\
+        P_{n+1|m,n} &= A P_{n|m,n} A^\intercal + Q \\
+        K_{n+1} &= P_{n+1|m,n} Z^\intercal (Z P_{n+1|m,n} Z^\intercal + R)^{-1} \\
+        \mathbf{x}_{n+1|m,n,n+1} &= \mathbf{x}_{n+1|m,n} + K_{n+1} (\mathbf{y}_{n+1} - Z \mathbf{x}_{n+1|m,n}) \\
+        P_{n+1|m,n,n+1} &= P_{n+1|m,n} - K_{n+1} Z P_{n+1|m,n}
+    \end{align*}
+
+\end{proposition}
+
+\begin{proof}
+    We prove this by applying the law of total probability (prediction step) followed by standard Gaussian measurement conditioning (update step).
+
+    First, we derive the one-step predictive distribution of $\mathbf{x}_{n+1}$ given all observations up to time $n$ (incorporating the earlier gap):
+    \begin{align*}
+        P(\mathbf{x}_{n+1} \mid \mathbf{y}_1, \ldots, \mathbf{y}_m, \mathbf{y}_n) &= \int_{-\infty}^{\infty} P(\mathbf{x}_{n+1} \mid \mathbf{x}_n) P(\mathbf{x}_n \mid \mathbf{y}_1, \ldots, \mathbf{y}_m, \mathbf{y}_n) d\mathbf{x}_n \\
+        &= \int_{-\infty}^{\infty} \mathcal{N}(\mathbf{x}_{n+1} \mid A\mathbf{x}_n, Q) \mathcal{N}(\mathbf{x}_n \mid \mathbf{x}_{n|m,n}, P_{n|m,n}) d\mathbf{x}_n \\
+        &= \mathcal{N}(\mathbf{x}_{n+1} \mid \mathbf{x}_{n+1|m,n}, P_{n+1|m,n})
+    \end{align*}
+    where $\mathbf{x}_{n+1|m,n} = A \mathbf{x}_{n|m,n}$ and $P_{n+1|m,n} = A P_{n|m,n} A^\intercal + Q$.
+
+    Next, we incorporate the observation $\mathbf{y}_{n+1}$. Formulating the joint distribution of $(\mathbf{x}_{n+1}^\intercal, \mathbf{y}_{n+1}^\intercal)^\intercal$ given the historical and current conditioning set $(\mathbf{y}_1, \ldots, \mathbf{y}_m, \mathbf{y}_n)$:
+    \begin{align*}
+        \begin{bmatrix} \mathbf{x}_{n+1} \\ \mathbf{y}_{n+1} \end{bmatrix} \Bigg| \mathbf{y}_1, \ldots, \mathbf{y}_m, \mathbf{y}_n &\sim \mathcal{N}\left(
+        \begin{bmatrix} \mathbf{x}_{n+1|m,n} \\ Z \mathbf{x}_{n+1|m,n} \end{bmatrix},
+        \begin{bmatrix} 
+        P_{n+1|m,n} & P_{n+1|m,n} Z^\intercal \\ 
+        Z P_{n+1|m,n} & Z P_{n+1|m,n} Z^\intercal + R 
+        \end{bmatrix}
+        \right)
+    \end{align*}
+
+    Applying standard Gaussian conditioning to extract the posterior distribution given $\mathbf{y}_{n+1}$ yields the standard Kalman filter update equations:
+    \begin{align*}
+        \mathbf{x}_{n+1|m,n,n+1} &= \mathbf{x}_{n+1|m,n} + K_{n+1} (\mathbf{y}_{n+1} - Z \mathbf{x}_{n+1|m,n}) \\
+        P_{n+1|m,n,n+1} &= P_{n+1|m,n} - K_{n+1} Z P_{n+1|m,n}
+    \end{align*}
+    with the gain $K_{n+1} = P_{n+1|m,n} Z^\intercal (Z P_{n+1|m,n} Z^\intercal + R)^{-1}$.
+
+    Notes:
+
+    \begin{enumerate}
+
+        \item The prediction step uses Chapman-Kolmogorov integration, combining the linear transition dynamics with the previously computed posterior at time $n$.
+
+        \item The joint distribution construction correctly inherits the covariance propagation from the skipped-observation framework.
+
+        \item The final update applies standard linear-Gaussian conditioning to integrate the new observation $\mathbf{y}_{n+1}$.
+
+    \end{enumerate}
+
+\end{proof}
+
+\end{comment}
+
 \section{Evaluation}
 
 \subsection{Simulations}

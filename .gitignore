@@ -14,10 +14,6 @@ checkSpelling.csh
 figures/*
 results/*
 !results/lds_simulation.npz
-docs/notebooks/.ipynb_checkpoints/*
-docs/lectures/neuroinformatics/2023/*
-!docs/lectures/neuroinformatics/2023/ldsForNeuro.tex
-!docs/lectures/neuroinformatics/2023/ldsForNeuro.pdf
 
 docs/sphinx/build/doctrees
 docs/sphinx/source/auto_examples/
@@ -25,6 +21,9 @@ docs/sphinx/source/auto_examples/
 docs/sphinx/source/*.rst
 !docs/sphinx/source/index.rst
 !docs/sphinx/source/introduction.rst
+
+docs/inference/*
+!docs/inference/ldsInference.tex
 
 data/*
 data/*
