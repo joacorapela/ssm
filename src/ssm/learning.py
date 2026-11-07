@@ -473,7 +473,7 @@ def torch_lbfgs_optimize_SS_kinematics_diagV0(y, u, B, Qe, a, Z,
     print(f"likelihood: {log_like[-1]}")
     for epoch in range(n_epochs):
         curEval = optimizer.step(closure)
-        curEval = -log_likelihood_fn()
+        # curEval = -log_likelihood_fn()
         log_like.append(-curEval.item())
         elapsed_time.append(time.time() - start_time)
         print("--------------------------------------------------------------------------------")
