@@ -1,0 +1,82 @@
+
+:orphan:
+
+.. _sphx_glr_sg_execution_times:
+
+
+Computation times
+=================
+**18:10.572** total execution time for 16 files **from all galleries**:
+
+.. container::
+
+  .. raw:: html
+
+    <style scoped>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script type="text/javascript" class="init">
+    $(document).ready( function () {
+        $('table.sg-datatable').DataTable({order: [[1, 'desc']]});
+    } );
+    </script>
+
+  .. list-table::
+   :header-rows: 1
+   :class: table table-striped sg-datatable
+
+   * - Example
+     - Time
+     - Mem (MB)
+   * - :ref:`sphx_glr_auto_examples_neuralLatents_plot_striatum.py` (``../../../examples/sphinx_gallery/neuralLatents/plot_striatum.py``)
+     - 18:10.572
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_instantaneousFrequency_plotEstimationOfIF.py` (``../../../examples/sphinx_gallery/instantaneousFrequency/plotEstimationOfIF.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_kinematics_plotBatchFilterSimulated1DTrajectoryDWPA.py` (``../../../examples/sphinx_gallery/kinematics/plotBatchFilterSimulated1DTrajectoryDWPA.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_kinematics_plotBatchFilterSimulatedTrajectoryDWPA.py` (``../../../examples/sphinx_gallery/kinematics/plotBatchFilterSimulatedTrajectoryDWPA.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_kinematics_plotBatchMissingValuesSimulated1DTrajectoryDWPA.py` (``../../../examples/sphinx_gallery/kinematics/plotBatchMissingValuesSimulated1DTrajectoryDWPA.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_kinematics_plotBatchSmoothSimulatedTrajectoryDWPA.py` (``../../../examples/sphinx_gallery/kinematics/plotBatchSmoothSimulatedTrajectoryDWPA.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_kinematics_plotEMvsGAcomparisonForagingMouse.py` (``../../../examples/sphinx_gallery/kinematics/plotEMvsGAcomparisonForagingMouse.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_kinematics_plotEMvsGAcomparisonSimulated.py` (``../../../examples/sphinx_gallery/kinematics/plotEMvsGAcomparisonSimulated.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_kinematics_plotFilterFWGMouseTrajectoryManualVsLearnedParams.py` (``../../../examples/sphinx_gallery/kinematics/plotFilterFWGMouseTrajectoryManualVsLearnedParams.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_kinematics_plotOnlineFilterFWGMouseTrajectory.py` (``../../../examples/sphinx_gallery/kinematics/plotOnlineFilterFWGMouseTrajectory.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_kinematics_plotSimulated1DTrajectoryDWPA.py` (``../../../examples/sphinx_gallery/kinematics/plotSimulated1DTrajectoryDWPA.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_kinematics_plotSimulatedTrajectoryDWPA.py` (``../../../examples/sphinx_gallery/kinematics/plotSimulatedTrajectoryDWPA.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_neuralLatents_in_progress_plot_MC_MAZE_SMALL.py` (``../../../examples/sphinx_gallery/neuralLatents/in_progress_plot_MC_MAZE_SMALL.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_neuralLatents_plot_simulations.py` (``../../../examples/sphinx_gallery/neuralLatents/plot_simulations.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_onlineBayesianLinearRegression_plotOnlineBayesianLinearRegressionSimpleCell.py` (``../../../examples/sphinx_gallery/onlineBayesianLinearRegression/plotOnlineBayesianLinearRegressionSimpleCell.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_auto_examples_onlineBayesianLinearRegression_plotOnlineBayesianLinearRegressionSimulatedData.py` (``../../../examples/sphinx_gallery/onlineBayesianLinearRegression/plotOnlineBayesianLinearRegressionSimulatedData.py``)
+     - 00:00.000
+     - 0.0

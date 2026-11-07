@@ -1,0 +1,13 @@
+
+:orphan:
+
+.. _sphx_glr_auto_examples_instantaneousFrequency_sg_execution_times:
+
+
+Computation times
+=================
+**00:01.375** total execution time for **auto_examples_instantaneousFrequency** files:
+
++--------------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_examples_instantaneousFrequency_plotEstimationOfIF.py` (``plotEstimationOfIF.py``) | 00:01.375 | 0.0 MB |
++--------------------------------------------------------------------------------------------------------+-----------+--------+

@@ -1,0 +1,15 @@
+
+:orphan:
+
+.. _sphx_glr_auto_examples_onlineBayesianLinearRegression_sg_execution_times:
+
+
+Computation times
+=================
+**04:52.421** total execution time for **auto_examples_onlineBayesianLinearRegression** files:
+
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_examples_onlineBayesianLinearRegression_plotOnlineBayesianLinearRegressionSimpleCell.py` (``plotOnlineBayesianLinearRegressionSimpleCell.py``)       | 04:33.739 | 0.0 MB |
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_auto_examples_onlineBayesianLinearRegression_plotOnlineBayesianLinearRegressionSimulatedData.py` (``plotOnlineBayesianLinearRegressionSimulatedData.py``) | 00:18.682 | 0.0 MB |
++--------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-----------+--------+

@@ -1,0 +1,84 @@
+
+
+.. _sphx_glr_auto_examples_neuralLatents:
+
+Learning and Inference for Neural Latents
+-----------------------------------------
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below learns and infers latents with simple simulated data.">
+
+.. only:: html
+
+  .. image:: /auto_examples/neuralLatents/images/thumb/sphx_glr_plot_simulations_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/neuralLatents/plot_simulations`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Learning and inference of latents with simple simulated data</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below learns and infers latents with MC_MAZE_SMALL data.">
+
+.. only:: html
+
+  .. image:: /auto_examples/neuralLatents/images/thumb/sphx_glr_in_progress_plot_MC_MAZE_SMALL_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/neuralLatents/in_progress_plot_MC_MAZE_SMALL`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Learning and inference of latents with MC_MAZE_SMALL data</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below learns and infers latents from strialt recording while a mouse performed a learned poking sequence. Recordings from [Thompson et al., 2026](https://www.nature.com/articles/s41593-026-02362-5).">
+
+.. only:: html
+
+  .. image:: /auto_examples/neuralLatents/images/thumb/sphx_glr_plot_striatum_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/neuralLatents/plot_striatum`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Learning and inference of latents from striatal recordings while a mouse performed a learned poking sequence</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/neuralLatents/plot_simulations
+   /auto_examples/neuralLatents/in_progress_plot_MC_MAZE_SMALL
+   /auto_examples/neuralLatents/plot_striatum
+

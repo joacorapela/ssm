@@ -1,0 +1,257 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learning and inference of latents and of a hidden Markov model for replay characterisation in the striatum &mdash; Linear Dynamical Systems  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=c83e6b79" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Linear Dynamical Systems
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Demo scripts</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">ssm</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Linear Dynamical Systems</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Learning and inference of latents and of a hidden Markov model for replay characterisation in the striatum</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/auto_examples/neuralLatents/in_progress_plot_striatum.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-neurallatents-in-progress-plot-striatum-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code or to run this example in your browser via Binder.</p>
+</div>
+<section class="sphx-glr-example-title" id="learning-and-inference-of-latents-and-of-a-hidden-markov-model-for-replay-characterisation-in-the-striatum">
+<span id="sphx-glr-auto-examples-neurallatents-in-progress-plot-striatum-py"></span><h1>Learning and inference of latents and of a hidden Markov model for replay characterisation in the striatum<a class="headerlink" href="#learning-and-inference-of-latents-and-of-a-hidden-markov-model-for-replay-characterisation-in-the-striatum" title="Link to this heading"></a></h1>
+<p>The code below learns and infers latents and a hidden Markov models for the
+characterisation of replay in the striatum</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">plotly</span><span class="nn">.</span><span class="nn">graph_objects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">go</span><span class="w">
+</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">gcnu_common</span><span class="nn">.</span><span class="nn">utils</span><span class="nn">.</span><span class="nn">neural_data_analysis</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">ssm</span><span class="nn">.</span><span class="nn">inference</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">ssm</span><span class="nn">.</span><span class="nn">learning</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">ssm</span><span class="nn">.</span><span class="nn">neural_latents</span><span class="nn">.</span><span class="nn">utils</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">ssm</span><span class="nn">.</span><span class="nn">neural_latents</span><span class="nn">.</span><span class="nn">plotting</span><span class="w">
+</span></pre></div></div>
+<section id="define-variables">
+<h2>Define variables<a class="headerlink" href="#define-variables" title="Link to this heading"></a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="c1"># data</span><span class="w">
+</span><span class="n">bin_size</span> <span class="o">=</span> <span class="mf">0.2</span>  <span class="c1"># 200~ms</span><span class="w">
+</span><span class="n">sqrt_transform</span> <span class="o">=</span> <span class="kc">True</span><span class="w">
+</span><span class="n">units_info_filename</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="s2">/ceph/sjones/projects/sequence_squad/organised_data/animals/EJT178_implant1/recording6_29-03-2022/ephys/non_curated_spikes/good_units_df.csv</span><span class="s2">&quot;</span><span class="w">
+</span><span class="n">spikes_times_col_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="s2">Spike_times</span><span class="s2">&quot;</span><span class="w">
+</span><span class="w">
+</span><span class="c1"># for EJT178_implant1/recording6_29-03-2022 clusters 0-207 belong to the striatum</span><span class="w">
+</span><span class="n">clusters_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">208</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="c1"># EM</span><span class="w">
+</span><span class="n">n_latents</span> <span class="o">=</span> <span class="mi">5</span><span class="w">
+</span><span class="n">n_clusters</span> <span class="o">=</span> <span class="n">clusters_indices</span><span class="o">.</span><span class="n">size</span><span class="w">
+</span><span class="n">EM_start_time_sec</span> <span class="o">=</span> <span class="mf">4045.0</span><span class="w">
+</span><span class="n">EM_duration_sec</span> <span class="o">=</span> <span class="mf">300.0</span><span class="w">
+</span><span class="n">EM_max_iter</span> <span class="o">=</span> <span class="mi">5000</span><span class="w">
+</span><span class="n">EM_tol</span> <span class="o">=</span> <span class="mf">1e-1</span><span class="w">
+</span><span class="n">EM_constraint_diag_R</span> <span class="o">=</span> <span class="kc">True</span><span class="w">
+</span><span class="w">
+</span><span class="n">vars_to_estimate</span> <span class="o">=</span> <span class="p">{</span><span class="w">
+</span>    <span class="s2">&quot;</span><span class="s2">u</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span><span class="w">
+</span>    <span class="s2">&quot;</span><span class="s2">B</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span><span class="w">
+</span>    <span class="s2">&quot;</span><span class="s2">Q</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span><span class="w">
+</span>    <span class="s2">&quot;</span><span class="s2">a</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span><span class="w">
+</span>    <span class="s2">&quot;</span><span class="s2">Z</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span><span class="w">
+</span>    <span class="s2">&quot;</span><span class="s2">R</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span><span class="w">
+</span>    <span class="s2">&quot;</span><span class="s2">m0</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span><span class="w">
+</span>    <span class="s2">&quot;</span><span class="s2">V0</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span><span class="w">
+</span><span class="c1"># EM initial conditions</span><span class="w">
+</span><span class="n">constant_u</span> <span class="o">=</span> <span class="mf">0.0</span><span class="w">
+</span><span class="n">mean_B</span> <span class="o">=</span> <span class="mf">0.1</span><span class="w">
+</span><span class="n">sigma_B</span> <span class="o">=</span> <span class="mf">0.3</span><span class="w">
+</span><span class="n">mean_Q</span> <span class="o">=</span> <span class="mf">5.0</span><span class="w">
+</span><span class="n">sigma_Q</span> <span class="o">=</span> <span class="mf">0.5</span><span class="w">
+</span><span class="n">mean_a</span> <span class="o">=</span> <span class="mf">1.0</span><span class="w">
+</span><span class="n">sigma_a</span> <span class="o">=</span> <span class="mf">0.1</span><span class="w">
+</span><span class="n">mean_Z</span> <span class="o">=</span> <span class="mf">0.01</span><span class="w">
+</span><span class="n">sigma_Z</span> <span class="o">=</span> <span class="mf">0.005</span><span class="w">
+</span><span class="n">mean_R</span> <span class="o">=</span> <span class="mf">1.0</span><span class="w">
+</span><span class="n">sigma_R</span> <span class="o">=</span> <span class="mf">0.2</span><span class="w">
+</span><span class="n">constant_m0</span> <span class="o">=</span> <span class="mf">0.0</span><span class="w">
+</span><span class="n">mean_V0</span> <span class="o">=</span> <span class="mf">0.02</span><span class="w">
+</span><span class="n">sigma_V0</span> <span class="o">=</span> <span class="mf">0.005</span><span class="w">
+</span><span class="w">
+</span><span class="n">u0</span> <span class="o">=</span> <span class="n">constant_u</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">n_latents</span><span class="p">)</span><span class="w">
+</span><span class="n">B0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mean_B</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma_B</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">n_latents</span><span class="p">,</span> <span class="n">n_latents</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="n">a0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mean_a</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma_a</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">)</span><span class="w">
+</span><span class="n">Z0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mean_Z</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma_Z</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">n_clusters</span><span class="p">,</span> <span class="n">n_latents</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="n">Q0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mean_Q</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma_Q</span><span class="p">,</span><span class="w">
+</span>                                     <span class="n">size</span><span class="o">=</span><span class="n">n_latents</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="n">R0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mean_R</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma_R</span><span class="p">,</span><span class="w">
+</span>                                     <span class="n">size</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="n">m0_0</span> <span class="o">=</span> <span class="n">constant_m0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">n_latents</span><span class="p">)</span><span class="w">
+</span><span class="n">V0_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">mean_V0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma_V0</span><span class="p">,</span><span class="w">
+</span>                                       <span class="n">size</span><span class="o">=</span><span class="n">n_latents</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+</section>
+<section id="bin-spikes-times">
+<h2>Bin spikes times<a class="headerlink" href="#bin-spikes-times" title="Link to this heading"></a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="c1"># read data</span><span class="w">
+</span><span class="n">units_info_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">units_info_filename</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="c1"># n_clusters</span><span class="w">
+</span><span class="n">n_clusters</span> <span class="o">=</span> <span class="n">units_info_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">
+</span><span class="w">
+</span><span class="c1"># get spikes timestamps</span><span class="w">
+</span><span class="n">spikes_timestamps</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_clusters</span><span class="p">)</span><span class="p">]</span><span class="w">
+</span><span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_clusters</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">unit_spikes_times_str</span> <span class="o">=</span> <span class="n">units_info_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="p">[</span><span class="n">spikes_times_col_name</span><span class="p">]</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="s2">,</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span>    <span class="n">unit_spikes_times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">unit_spike_times_str</span><span class="p">)</span> <span class="k">for</span> <span class="n">unit_spike_times_str</span> <span class="ow">in</span> <span class="n">unit_spikes_times_str</span><span class="p">]</span><span class="p">)</span><span class="w">
+</span>    <span class="n">spikes_timestamps</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">unit_spikes_times</span><span class="w">
+</span><span class="w">
+</span><span class="c1"># bin spikes</span><span class="w">
+</span><span class="n">t_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">st</span><span class="p">)</span> <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">spikes_timestamps</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">st</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="w">
+</span><span class="n">t_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">st</span><span class="p">)</span> <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">spikes_timestamps</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">st</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="w">
+</span><span class="n">bins_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">t_min</span><span class="p">,</span> <span class="n">t_max</span><span class="p">,</span> <span class="n">bin_size</span><span class="p">)</span><span class="w">
+</span><span class="n">bins_centers</span> <span class="o">=</span> <span class="p">(</span><span class="n">bins_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="p">]</span> <span class="o">+</span> <span class="n">bins_edges</span><span class="p">[</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="w">
+</span><span class="w">
+</span><span class="n">binned_spikes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_clusters</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">bins_centers</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_clusters</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">binned_spikes</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="p">:</span><span class="p">]</span> <span class="o">=</span> <span class="n">gcnu_common</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">neural_data_analysis</span><span class="o">.</span><span class="n">binSpikesTimes</span><span class="p">(</span><span class="w">
+</span>        <span class="n">spikes_times</span><span class="o">=</span><span class="n">spikes_timestamps</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="p">,</span> <span class="n">bins_edges</span><span class="o">=</span><span class="n">bins_edges</span><span class="p">,</span><span class="w">
+</span>        <span class="n">time_unit</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">sec</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="k">if</span> <span class="n">sqrt_transform</span><span class="p">:</span><span class="w">
+</span>    <span class="n">binned_spikes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">binned_spikes</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+</section>
+<section id="perform-em">
+<h2>Perform EM<a class="headerlink" href="#perform-em" title="Link to this heading"></a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">EM_data</span> <span class="o">=</span> <span class="n">binned_spikes</span><span class="o">.</span><span class="n">T</span><span class="w">
+</span><span class="n">EM_end_time_sec</span> <span class="o">=</span> <span class="n">EM_start_time_sec</span> <span class="o">+</span> <span class="n">EM_duration_sec</span><span class="w">
+</span><span class="n">valid_bins_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">EM_start_time_sec</span> <span class="o">&lt;</span><span class="o">=</span> <span class="n">bins_centers</span><span class="p">,</span><span class="w">
+</span>                                 <span class="n">bins_centers</span> <span class="o">&lt;</span> <span class="n">EM_end_time_sec</span><span class="p">)</span><span class="w">
+</span><span class="n">EM_data</span> <span class="o">=</span> <span class="n">EM_data</span><span class="p">[</span><span class="n">valid_bins_mask</span><span class="p">,</span> <span class="p">:</span><span class="p">]</span><span class="w">
+</span><span class="w">
+</span><span class="c1"># make sure that the first EM_data point is not NaN</span><span class="w">
+</span><span class="n">first_not_nan_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">EM_data</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">
+</span><span class="n">EM_data</span> <span class="o">=</span> <span class="n">EM_data</span><span class="p">[</span><span class="n">first_not_nan_index</span><span class="p">:</span><span class="p">,</span><span class="n">clusters_indices</span><span class="p">]</span><span class="w">
+</span><span class="w">
+</span><span class="n">optim_res</span> <span class="o">=</span> <a class="sphx-glr-backref-module-ssm-learning sphx-glr-backref-type-py-function reference internal" href="../../ssm.html#ssm.learning.em_SS_LDS" title="ssm.learning.em_SS_LDS"><span class="n">ssm</span><span class="o">.</span><span class="n">learning</span><span class="o">.</span><span class="n">em_SS_LDS</span></a><span class="p">(</span><span class="w">
+</span>    <span class="n">y</span><span class="o">=</span><span class="n">EM_data</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">u0</span><span class="o">=</span><span class="n">u0</span><span class="p">,</span> <span class="n">B0</span><span class="o">=</span><span class="n">B0</span><span class="p">,</span> <span class="n">Q0</span><span class="o">=</span><span class="n">Q0</span><span class="p">,</span> <span class="n">a0</span><span class="o">=</span><span class="n">a0</span><span class="p">,</span> <span class="n">Z0</span><span class="o">=</span><span class="n">Z0</span><span class="p">,</span> <span class="n">R0</span><span class="o">=</span><span class="n">R0</span><span class="p">,</span><span class="w">
+</span>    <span class="n">m0_0</span><span class="o">=</span><span class="n">m0_0</span><span class="p">,</span> <span class="n">V0_0</span><span class="o">=</span><span class="n">V0_0</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="n">EM_max_iter</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">EM_tol</span><span class="p">,</span><span class="w">
+</span>    <span class="n">vars_to_estimate</span><span class="o">=</span><span class="n">vars_to_estimate</span><span class="p">,</span><span class="w">
+</span>    <span class="n">constraint_diag_R</span><span class="o">=</span><span class="n">EM_constraint_diag_R</span><span class="p">,</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-neurallatents-in-progress-plot-striatum-py">
+<div class="binder-badge docutils container">
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/joacorapela/lds_python/gh-pages?filepath=notebooks/auto_examples/neuralLatents/in_progress_plot_striatum.ipynb"><img alt="Launch binder" src="../../_images/binder_badge_logo2.svg" style="width: 150px;" />
+</a>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/eb38529d83c6eccb2a8b35f58a14783e/in_progress_plot_striatum.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">in_progress_plot_striatum.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/f79c67c849da4849e35912a39cf60856/in_progress_plot_striatum.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">in_progress_plot_striatum.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/212d67b3027cfabd6b577c77cbd6a4c3/in_progress_plot_striatum.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">in_progress_plot_striatum.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Joaquin Rapela.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

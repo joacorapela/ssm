@@ -1,0 +1,66 @@
+
+
+.. _sphx_glr_auto_examples_onlineBayesianLinearRegression:
+
+Online Bayesian linear regression
+---------------------------------
+
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below uses an online algorithm to estimate the linear receptive field of a simple cell recorded from an anesthetized cat, as described in &quot;Touryan, Jon and Felsen, Gidon and Dan, Yang (2005). Spatial structure of complex cell receptive fields measured with natural images. Neuron 45 (5), 781-791.&quot;">
+
+.. only:: html
+
+  .. image:: /auto_examples/onlineBayesianLinearRegression/images/thumb/sphx_glr_plotOnlineBayesianLinearRegressionSimpleCell_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/onlineBayesianLinearRegression/plotOnlineBayesianLinearRegressionSimpleCell`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Anesthetized cat V1 simple cell</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below uses an online algorithm to estimate the posterior of the weighs of a linear regression model using simulate data.">
+
+.. only:: html
+
+  .. image:: /auto_examples/onlineBayesianLinearRegression/images/thumb/sphx_glr_plotOnlineBayesianLinearRegressionSimulatedData_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/onlineBayesianLinearRegression/plotOnlineBayesianLinearRegressionSimulatedData`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Simulated data</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /auto_examples/onlineBayesianLinearRegression/plotOnlineBayesianLinearRegressionSimpleCell
+   /auto_examples/onlineBayesianLinearRegression/plotOnlineBayesianLinearRegressionSimulatedData
+

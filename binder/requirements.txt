@@ -1,0 +1,13 @@
+numpy
+pandas
+scipy
+torch
+plotly
+sphinx
+sphinx_rtd_theme
+sphinx-gallery
+matplotlib
+ipynb
+pandas
+torch
+dandi

@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learning and inference of latents with MC_MAZE_SMALL data &mdash; Linear Dynamical Systems  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=c83e6b79" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Learning and inference of latents from striatal recordings while a mouse performed a learned poking sequence" href="plot_striatum.html" />
+    <link rel="prev" title="Learning and inference of latents with simple simulated data" href="plot_simulations.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Linear Dynamical Systems
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Demo scripts</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#instantaneous-frequency-inference">Instantaneous Frequency Inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#kinematics-inference">Kinematics Inference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#learning-and-inference-for-neural-latents">Learning and Inference for Neural Latents</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#online-bayesian-linear-regression">Online Bayesian linear regression</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../instantaneousFrequency/index.html">Instantaneous Frequency Inference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../kinematics/index.html">Kinematics Inference</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Learning and Inference for Neural Latents</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="plot_simulations.html">Learning and inference of latents with simple simulated data</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Learning and inference of latents with MC_MAZE_SMALL data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="plot_striatum.html">Learning and inference of latents from striatal recordings while a mouse performed a learned poking sequence</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../onlineBayesianLinearRegression/index.html">Online Bayesian linear regression</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Code:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">ssm</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Linear Dynamical Systems</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Demo scripts</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Learning and Inference for Neural Latents</a></li>
+      <li class="breadcrumb-item active">Learning and inference of latents with MC_MAZE_SMALL data</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/auto_examples/neuralLatents/in_progress_plot_MC_MAZE_SMALL.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-neurallatents-in-progress-plot-mc-maze-small-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code or to run this example in your browser via Binder.</p>
+</div>
+<section class="sphx-glr-example-title" id="learning-and-inference-of-latents-with-mc-maze-small-data">
+<span id="sphx-glr-auto-examples-neurallatents-in-progress-plot-mc-maze-small-py"></span><h1>Learning and inference of latents with MC_MAZE_SMALL data<a class="headerlink" href="#learning-and-inference-of-latents-with-mc-maze-small-data" title="Link to this heading"></a></h1>
+<p>The code below learns and infers latents with MC_MAZE_SMALL data.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">plotly</span><span class="nn">.</span><span class="nn">graph_objects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">go</span><span class="w">
+</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">dandi</span><span class="nn">.</span><span class="nn">dandiapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">DandiAPIClient</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">pynwb</span><span class="w"> </span><span class="kn">import</span> <span class="n">NWBHDF5IO</span><span class="w">
+</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">ssm</span><span class="nn">.</span><span class="nn">inference</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">ssm</span><span class="nn">.</span><span class="nn">learning</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">ssm</span><span class="nn">.</span><span class="nn">neural_latents</span><span class="nn">.</span><span class="nn">utils</span><span class="w">
+</span><span class="kn">import</span><span class="w"> </span><span class="nn">ssm</span><span class="nn">.</span><span class="nn">neural_latents</span><span class="nn">.</span><span class="nn">plotting</span><span class="w">
+</span></pre></div></div>
+<section id="define-variables">
+<h2>Define variables<a class="headerlink" href="#define-variables" title="Link to this heading"></a></h2>
+<p>Here I am setting a small value to variable <code class="docutils literal notranslate"><span class="pre">max_iter</span></code>, in order to build
+this documentation quickly. You may want to set this variable to
+<code class="docutils literal notranslate"><span class="pre">max_iter=2000</span></code> in combination with a small error tolerance <code class="docutils literal notranslate"><span class="pre">tol=1e-3</span></code>.</p>
+<p>In addition, you may want to plot all the data, and not just a small time
+interval between <code class="docutils literal notranslate"><span class="pre">from_time</span> <span class="pre">=</span> <span class="pre">100.0</span></code> and <code class="docutils literal notranslate"><span class="pre">to_time</span> <span class="pre">=</span> <span class="pre">130.0</span></code>, by setting
+<code class="docutils literal notranslate"><span class="pre">from_time</span> <span class="pre">=</span> <span class="pre">-np.inf</span></code> and <code class="docutils literal notranslate"><span class="pre">to_time</span> <span class="pre">=</span> <span class="pre">np.inf</span></code>.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="c1"># data</span><span class="w">
+</span><span class="n">get_data_from_Dandi</span> <span class="o">=</span> <span class="kc">True</span><span class="w">
+</span><span class="n">dandiset_ID</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="s2">000140</span><span class="s2">&quot;</span><span class="w">
+</span><span class="n">dandi_filepath</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="s2">sub-Jenkins/sub-Jenkins_ses-small_desc-train_behavior+ecephys.nwb</span><span class="s2">&quot;</span><span class="w">
+</span><span class="n">local_filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="s2">../../../../projects/lds_neuralLatents_MC_MAZE_SMALL/data/</span><span class="si">{</span><span class="n">dandiset_ID</span><span class="si">}</span><span class="s2">/sub-Jenkins/sub-Jenkins_ses-small_desc-train_behavior+ecephys.nwb</span><span class="s2">&quot;</span><span class="w">
+</span><span class="n">bin_size</span> <span class="o">=</span> <span class="mf">0.02</span><span class="w">
+</span><span class="w">
+</span><span class="c1"># plot</span><span class="w">
+</span><span class="n">events_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="s2">start_time</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">target_on_time</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">go_cue_time</span><span class="s2">&quot;</span><span class="p">,</span><span class="w">
+</span>                <span class="s2">&quot;</span><span class="s2">move_onset_time</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">stop_time</span><span class="s2">&quot;</span><span class="p">]</span><span class="w">
+</span><span class="n">events_linetypes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="s2">dot</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">dash</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">dashdot</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">longdash</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">solid</span><span class="s2">&quot;</span><span class="p">]</span><span class="w">
+</span><span class="n">events_colors_spikes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="s2">white</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">white</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">white</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">white</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">white</span><span class="s2">&quot;</span><span class="p">]</span><span class="w">
+</span><span class="n">events_colors_latents</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="s2">black</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">black</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">black</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">black</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">black</span><span class="s2">&quot;</span><span class="p">]</span><span class="w">
+</span><span class="n">cb_alpha</span> <span class="o">=</span> <span class="mf">0.3</span><span class="w">
+</span><span class="n">from_time</span> <span class="o">=</span> <span class="mf">100.0</span><span class="w">
+</span><span class="n">to_time</span> <span class="o">=</span> <span class="mf">150.0</span><span class="w">
+</span><span class="w">
+</span><span class="c1"># model</span><span class="w">
+</span><span class="n">n_latents</span> <span class="o">=</span> <span class="mi">10</span><span class="w">
+</span><span class="w">
+</span><span class="c1"># estimation initial conditions</span><span class="w">
+</span><span class="n">sigma_B</span> <span class="o">=</span> <span class="mf">0.1</span><span class="w">
+</span><span class="n">sigma_Z</span> <span class="o">=</span> <span class="mf">0.1</span><span class="w">
+</span><span class="n">sigma_Q</span> <span class="o">=</span> <span class="mf">0.1</span><span class="w">
+</span><span class="n">sigma_R</span> <span class="o">=</span> <span class="mf">0.1</span><span class="w">
+</span><span class="n">sigma_m0</span> <span class="o">=</span> <span class="mf">0.1</span><span class="w">
+</span><span class="n">sigma_V0</span> <span class="o">=</span> <span class="mf">0.1</span><span class="w">
+</span><span class="w">
+</span><span class="c1"># estimation parameters</span><span class="w">
+</span><span class="c1"># max_iter = 2000</span><span class="w">
+</span><span class="n">max_iter</span> <span class="o">=</span> <span class="mi">2000</span><span class="w">
+</span><span class="n">tol</span> <span class="o">=</span> <span class="mf">1e-1</span><span class="w">
+</span><span class="n">vars_to_estimate</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;</span><span class="s2">u</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">B</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">Q</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span><span class="w">
+</span>                    <span class="s2">&quot;</span><span class="s2">a</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">Z</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">R</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span><span class="w">
+</span>                    <span class="s2">&quot;</span><span class="s2">m0</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;</span><span class="s2">V0</span><span class="s2">&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="p">}</span><span class="w">
+</span></pre></div></div>
+</section>
+<section id="download-data">
+<h2>Download data<a class="headerlink" href="#download-data" title="Link to this heading"></a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="k">if</span> <span class="n">get_data_from_Dandi</span><span class="p">:</span><span class="w">
+</span>    <span class="k">with</span> <span class="n">DandiAPIClient</span><span class="p">(</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span><span class="w">
+</span>        <span class="n">asset</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_dandiset</span><span class="p">(</span><span class="n">dandiset_ID</span><span class="p">,</span><span class="w">
+</span>                                    <span class="s2">&quot;</span><span class="s2">draft</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_asset_by_path</span><span class="p">(</span><span class="n">dandi_filepath</span><span class="p">)</span><span class="w">
+</span>        <span class="n">s3_path</span> <span class="o">=</span> <span class="n">asset</span><span class="o">.</span><span class="n">get_content_url</span><span class="p">(</span><span class="n">follow_redirects</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">strip_query</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="w">
+</span>        <span class="n">io</span> <span class="o">=</span> <span class="n">NWBHDF5IO</span><span class="p">(</span><span class="n">s3_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">ros3</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">aws_region</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">us-east-1</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span>        <span class="n">nwbfile</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span>        <span class="n">units_df</span> <span class="o">=</span> <span class="n">nwbfile</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span>        <span class="n">trials_df</span> <span class="o">=</span> <span class="n">nwbfile</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">trials</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="k">else</span><span class="p">:</span><span class="w">
+</span>    <span class="k">with</span> <span class="n">NWBHDF5IO</span><span class="p">(</span><span class="n">local_filepath</span><span class="p">,</span> <span class="s1">'</span><span class="s1">r</span><span class="s1">'</span><span class="p">)</span> <span class="k">as</span> <span class="n">io</span><span class="p">:</span><span class="w">
+</span>        <span class="n">nwbfile</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span>        <span class="n">units_df</span> <span class="o">=</span> <span class="n">nwbfile</span><span class="o">.</span><span class="n">units</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span>        <span class="n">trials_df</span> <span class="o">=</span> <span class="n">nwbfile</span><span class="o">.</span><span class="n">intervals</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">trials</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="w">
+</span><span class="c1"># n_clusters</span><span class="w">
+</span><span class="n">n_clusters</span> <span class="o">=</span> <span class="n">units_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">
+</span></pre></div></div>
+</section>
+<section id="bin-spikes">
+<h2>Bin spikes<a class="headerlink" href="#bin-spikes" title="Link to this heading"></a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="c1"># continuous spikes times</span><span class="w">
+</span><span class="n">continuous_spikes_times</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_clusters</span><span class="p">)</span><span class="p">]</span><span class="w">
+</span><span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_clusters</span><span class="p">)</span><span class="p">:</span><span class="w">
+</span>    <span class="n">continuous_spikes_times</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">units_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="p">[</span><span class="s1">'</span><span class="s1">spike_times</span><span class="s1">'</span><span class="p">]</span><span class="w">
+</span><span class="w">
+</span><span class="n">binned_spikes</span><span class="p">,</span> <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">ssm</span><span class="o">.</span><span class="n">neural_latents</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">bin_spike_times</span><span class="p">(</span><span class="w">
+</span>    <span class="n">spike_times</span><span class="o">=</span><span class="n">continuous_spikes_times</span><span class="p">,</span> <span class="n">bin_size</span><span class="o">=</span><span class="n">bin_size</span><span class="p">)</span><span class="w">
+</span><span class="n">bin_centers</span> <span class="o">=</span> <span class="p">(</span><span class="n">bin_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="p">]</span> <span class="o">+</span> <span class="n">bin_edges</span><span class="p">[</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="w">
+</span><span class="n">transformed_binned_spikes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">binned_spikes</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="c1"># clip data to plot</span><span class="w">
+</span><span class="n">first_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">bin_centers</span> <span class="o">&gt;</span><span class="o">=</span> <span class="n">from_time</span><span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">
+</span><span class="n">last_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">bin_centers</span> <span class="o">&lt;</span><span class="o">=</span> <span class="n">to_time</span><span class="p">)</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="w">
+</span><span class="n">to_plot_slice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">first_index</span><span class="p">,</span> <span class="n">last_index</span><span class="p">)</span><span class="w">
+</span><span class="n">bin_centers_to_plot</span> <span class="o">=</span> <span class="n">bin_centers</span><span class="p">[</span><span class="n">to_plot_slice</span><span class="p">]</span><span class="w">
+</span><span class="n">trials_df</span> <span class="o">=</span> <span class="n">trials_df</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="w">
+</span>    <span class="n">trials_df</span><span class="p">[</span><span class="s1">'</span><span class="s1">start_time</span><span class="s1">'</span><span class="p">]</span> <span class="o">&gt;</span><span class="o">=</span> <span class="n">from_time</span><span class="p">,</span><span class="w">
+</span>    <span class="n">trials_df</span><span class="p">[</span><span class="s1">'</span><span class="s1">stop_time</span><span class="s1">'</span><span class="p">]</span> <span class="o">&lt;</span><span class="o">=</span> <span class="n">to_time</span><span class="p">,</span><span class="w">
+</span><span class="p">)</span><span class="p">]</span><span class="w">
+</span></pre></div></div>
+<section id="plot-binned-spikes">
+<h3>Plot binned spikes<a class="headerlink" href="#plot-binned-spikes" title="Link to this heading"></a></h3>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="n">trace</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Heatmap</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">bin_centers_to_plot</span><span class="p">,</span><span class="w">
+</span>                   <span class="n">z</span><span class="o">=</span><span class="n">transformed_binned_spikes</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="n">to_plot_slice</span><span class="p">]</span><span class="p">,</span><span class="w">
+</span>                   <span class="n">colorbar</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">&lt;b&gt;Sqrt(spike_count+0.5)&lt;/b&gt;</span><span class="s2">&quot;</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span><span class="w">
+</span><span class="c1"># ssm.neural_latents.plotting.add_events_vlines(</span><span class="w">
+</span><span class="c1">#     fig=fig, trials_df=trials_df, events_names=events_names,</span><span class="w">
+</span><span class="c1">#     events_linetypes=events_linetypes, events_colors=events_colors_spikes)</span><span class="w">
+</span><span class="n">fig</span><span class="o">.</span><span class="n">update_xaxes</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">Time (sec)</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="n">fig</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">Cluster Index</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="n">fig</span><span class="w">
+</span></pre></div></div>
+</section>
+</section>
+<section id="parameter-learning-using-expectation-maximization">
+<h2>Parameter learning using expectation maximization<a class="headerlink" href="#parameter-learning-using-expectation-maximization" title="Link to this heading"></a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">B0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma_B</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_latents</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="n">Z0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma_Z</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">n_clusters</span><span class="p">,</span> <span class="n">n_latents</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="n">Q0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma_Q</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_latents</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="n">R0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma_R</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="n">m0_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma_m0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_latents</span><span class="p">)</span><span class="w">
+</span><span class="n">V0_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">sigma_V0</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n_latents</span><span class="p">)</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">M</span> <span class="o">=</span> <span class="n">B0</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">
+</span><span class="n">N</span> <span class="o">=</span> <span class="n">Z0</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w">
+</span><span class="n">u0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span><span class="w">
+</span><span class="n">a0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">double</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">optim_res</span> <span class="o">=</span> <a class="sphx-glr-backref-module-ssm-learning sphx-glr-backref-type-py-function reference internal" href="../../ssm.html#ssm.learning.em_SS_LDS" title="ssm.learning.em_SS_LDS"><span class="n">ssm</span><span class="o">.</span><span class="n">learning</span><span class="o">.</span><span class="n">em_SS_LDS</span></a><span class="p">(</span><span class="w">
+</span>    <span class="n">y</span><span class="o">=</span><span class="n">transformed_binned_spikes</span><span class="p">,</span><span class="w">
+</span>    <span class="n">u0</span><span class="o">=</span><span class="n">u0</span><span class="p">,</span> <span class="n">B0</span><span class="o">=</span><span class="n">B0</span><span class="p">,</span> <span class="n">Q0</span><span class="o">=</span><span class="n">Q0</span><span class="p">,</span><span class="w">
+</span>    <span class="n">m0_0</span><span class="o">=</span><span class="n">m0_0</span><span class="p">,</span> <span class="n">V0_0</span><span class="o">=</span><span class="n">V0_0</span><span class="p">,</span><span class="w">
+</span>    <span class="n">a0</span><span class="o">=</span><span class="n">a0</span><span class="p">,</span> <span class="n">Z0</span><span class="o">=</span><span class="n">Z0</span><span class="p">,</span> <span class="n">R0</span><span class="o">=</span><span class="n">R0</span><span class="p">,</span><span class="w">
+</span>    <span class="n">max_iter</span><span class="o">=</span><span class="n">max_iter</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span><span class="w">
+</span>    <span class="n">vars_to_estimate</span><span class="o">=</span><span class="n">vars_to_estimate</span><span class="p">,</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<section id="plot-log-likelihood-vs-iteration-number">
+<h3>Plot log likelihood vs iteration number<a class="headerlink" href="#plot-log-likelihood-vs-iteration-number" title="Link to this heading"></a></h3>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">optim_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">log_like</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">)</span><span class="w">
+</span><span class="n">iter_no</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span><span class="w">
+</span><span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span><span class="n">trace</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">iter_no</span><span class="p">,</span><span class="w">
+</span>                   <span class="n">y</span><span class="o">=</span><span class="n">optim_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">log_like</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span><span class="w">
+</span>                   <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">lines+markers</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">trace</span><span class="p">)</span><span class="w">
+</span><span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">xaxis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">Iteration Number</span><span class="s2">&quot;</span><span class="p">)</span><span class="p">,</span><span class="w">
+</span>                  <span class="n">yaxis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">Lower Bound</span><span class="s2">&quot;</span><span class="p">)</span><span class="p">)</span><span class="w">
+</span><span class="n">fig</span><span class="w">
+</span></pre></div></div>
+</section>
+</section>
+<section id="kalman-filtering">
+<h2>Kalman filtering<a class="headerlink" href="#kalman-filtering" title="Link to this heading"></a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">filter_res</span> <span class="o">=</span> <a class="sphx-glr-backref-module-ssm-inference sphx-glr-backref-type-py-function reference internal" href="../../ssm.html#ssm.inference.filterLDS_SS_withMissingValues_np" title="ssm.inference.filterLDS_SS_withMissingValues_np"><span class="n">ssm</span><span class="o">.</span><span class="n">inference</span><span class="o">.</span><span class="n">filterLDS_SS_withMissingValues_np</span></a><span class="p">(</span><span class="w">
+</span>    <span class="n">y</span><span class="o">=</span><span class="n">transformed_binned_spikes</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">optim_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">u</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span> <span class="n">B</span><span class="o">=</span><span class="n">optim_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">B</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span> <span class="n">Q</span><span class="o">=</span><span class="n">optim_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">Q</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span><span class="w">
+</span>    <span class="n">m0</span><span class="o">=</span><span class="n">optim_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">m0</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span> <span class="n">V0</span><span class="o">=</span><span class="n">optim_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">V0</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">optim_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">a</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span> <span class="n">Z</span><span class="o">=</span><span class="n">optim_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">Z</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span> <span class="n">R</span><span class="o">=</span><span class="n">optim_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">R</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+</section>
+<section id="kalman-smoothing">
+<h2>Kalman smoothing<a class="headerlink" href="#kalman-smoothing" title="Link to this heading"></a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">smoothing_res</span> <span class="o">=</span> <a class="sphx-glr-backref-module-ssm-inference sphx-glr-backref-type-py-function reference internal" href="../../ssm.html#ssm.inference.smoothLDS_SS" title="ssm.inference.smoothLDS_SS"><span class="n">ssm</span><span class="o">.</span><span class="n">inference</span><span class="o">.</span><span class="n">smoothLDS_SS</span></a><span class="p">(</span><span class="w">
+</span>    <span class="n">B</span><span class="o">=</span><span class="n">optim_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">B</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span> <span class="n">xnn</span><span class="o">=</span><span class="n">filter_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">xnn</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span> <span class="n">Pnn</span><span class="o">=</span><span class="n">filter_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">Pnn</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span><span class="w">
+</span>    <span class="n">xnn1</span><span class="o">=</span><span class="n">filter_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">xnn1</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span> <span class="n">Pnn1</span><span class="o">=</span><span class="n">filter_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">Pnn1</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span><span class="w">
+</span>    <span class="n">m0</span><span class="o">=</span><span class="n">optim_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">m0</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span> <span class="n">V0</span><span class="o">=</span><span class="n">optim_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">V0</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+</section>
+<section id="plot-smoothed-states">
+<h2>Plot smoothed states<a class="headerlink" href="#plot-smoothed-states" title="Link to this heading"></a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="n">fig</span> <span class="o">=</span> <span class="n">ssm</span><span class="o">.</span><span class="n">neural_latents</span><span class="o">.</span><span class="n">plotting</span><span class="o">.</span><span class="n">getPlotLatents</span><span class="p">(</span><span class="w">
+</span>    <span class="n">means</span><span class="o">=</span><span class="n">smoothing_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">xnN</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="p">:</span><span class="p">,</span> <span class="n">to_plot_slice</span><span class="p">]</span><span class="p">,</span><span class="w">
+</span>    <span class="n">covs</span><span class="o">=</span><span class="n">smoothing_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">PnN</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">[</span><span class="p">:</span><span class="p">,</span> <span class="p">:</span><span class="p">,</span> <span class="n">to_plot_slice</span><span class="p">]</span><span class="p">,</span><span class="w">
+</span>    <span class="n">bin_centers</span><span class="o">=</span><span class="n">bin_centers_to_plot</span><span class="p">,</span><span class="w">
+</span>    <span class="n">Z</span><span class="o">=</span><span class="n">optim_res</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">Z</span><span class="s2">&quot;</span><span class="p">]</span><span class="p">,</span><span class="w">
+</span>    <span class="n">orthonormalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="w">
+</span>    <span class="n">legend_pattern</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">smoothing_</span><span class="si">{:d}</span><span class="s2">&quot;</span><span class="p">,</span><span class="w">
+</span>    <span class="n">cb_alpha</span><span class="o">=</span><span class="n">cb_alpha</span><span class="p">,</span><span class="w">
+</span><span class="p">)</span><span class="w">
+</span><span class="w">
+</span><span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-neurallatents-in-progress-plot-mc-maze-small-py">
+<div class="binder-badge docutils container">
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/joacorapela/lds_python/gh-pages?filepath=notebooks/auto_examples/neuralLatents/in_progress_plot_MC_MAZE_SMALL.ipynb"><img alt="Launch binder" src="../../_images/binder_badge_logo2.svg" style="width: 150px;" />
+</a>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/9dc05158022aa211694592f9a23e7484/in_progress_plot_MC_MAZE_SMALL.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">in_progress_plot_MC_MAZE_SMALL.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/721a0d36dba052e11df4253e17dae6d4/in_progress_plot_MC_MAZE_SMALL.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">in_progress_plot_MC_MAZE_SMALL.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/83b372781f09a82709ce4766e2d13014/in_progress_plot_MC_MAZE_SMALL.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">in_progress_plot_MC_MAZE_SMALL.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="plot_simulations.html" class="btn btn-neutral float-left" title="Learning and inference of latents with simple simulated data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="plot_striatum.html" class="btn btn-neutral float-right" title="Learning and inference of latents from striatal recordings while a mouse performed a learned poking sequence" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, Joaquin Rapela.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
