@@ -19,23 +19,6 @@ Learning and Inference for Neural Latents
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="The code below learns and infers latents and a hidden Markov models for the characterisation of replay in the striatum">
-
-.. only:: html
-
-  .. image:: /auto_examples/neuralLatents/images/thumb/sphx_glr_in_progress_plot_striatum_thumb.png
-    :alt:
-
-  :doc:`/auto_examples/neuralLatents/in_progress_plot_striatum`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Learning and inference of latents and of a hidden Markov model for replay characterisation in the striatum</div>
-    </div>
-
-
-.. raw:: html
-
     <div class="sphx-glr-thumbcontainer" tooltip="The code below learns and infers latents with simple simulated data.">
 
 .. only:: html
@@ -57,14 +40,31 @@ Learning and Inference for Neural Latents
 
 .. only:: html
 
-  .. image:: /auto_examples/neuralLatents/images/thumb/sphx_glr_plot_MC_MAZE_SMALL_thumb.png
+  .. image:: /auto_examples/neuralLatents/images/thumb/sphx_glr_in_progress_plot_MC_MAZE_SMALL_thumb.png
     :alt:
 
-  :doc:`/auto_examples/neuralLatents/plot_MC_MAZE_SMALL`
+  :doc:`/auto_examples/neuralLatents/in_progress_plot_MC_MAZE_SMALL`
 
 .. raw:: html
 
       <div class="sphx-glr-thumbnail-title">Learning and inference of latents with MC_MAZE_SMALL data</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The code below learns and infers latents from strialt recording while a mouse performed a learned poking sequence. Recordings from [Thompson et al., 2026](https://www.nature.com/articles/s41593-026-02362-5).">
+
+.. only:: html
+
+  .. image:: /auto_examples/neuralLatents/images/thumb/sphx_glr_plot_striatum_thumb.png
+    :alt:
+
+  :doc:`/auto_examples/neuralLatents/plot_striatum`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Learning and inference of latents from striatal recordings while a mouse performed a learned poking sequence</div>
     </div>
 
 
@@ -78,7 +78,7 @@ Learning and Inference for Neural Latents
 .. toctree::
    :hidden:
 
-   /auto_examples/neuralLatents/in_progress_plot_striatum
    /auto_examples/neuralLatents/plot_simulations
-   /auto_examples/neuralLatents/plot_MC_MAZE_SMALL
+   /auto_examples/neuralLatents/in_progress_plot_MC_MAZE_SMALL
+   /auto_examples/neuralLatents/plot_striatum
 

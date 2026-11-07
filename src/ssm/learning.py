@@ -769,7 +769,7 @@ def em_SS_LDS(y, u0, B0, Q0, a0, Z0, R0, m0_0, V0_0, max_iter=50, tol=1e-4,
             Z = np.linalg.solve(aux2.T, aux1.T).T
 
         if vars_to_estimate["a"]:
-            a = (Ty1 - Z @ Tx1) / N
+            a = np.expand_dims((Ty1 - Z @ Tx1) / N, -1)
 
         if vars_to_estimate["Q"]:
             Q = (Sxx11 - np.outer(Tx1, u) - np.outer(u, Tx1) +
