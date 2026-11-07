@@ -36,7 +36,8 @@ n_latents = 5
 n_clusters = clusters_indices.size
 EM_start_time_sec = 4045.0
 EM_duration_sec = 300.0
-EM_max_iter = 5000
+# EM_max_iter = 5000
+EM_max_iter = 3
 EM_tol = 1e-1
 EM_constraint_diag_R = True
 
